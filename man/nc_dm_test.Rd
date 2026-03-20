@@ -21,17 +21,21 @@ nc_dm_test(
 or \code{"greater"} (model 2 better).}
 
 \item{h}{Integer. Forecast horizon (default 1). Used for the
-Newey-West-style variance correction.}
+Newey-West bandwidth and HLN correction.}
 
 \item{loss}{Character. Loss function: \code{"squared"} or \code{"absolute"}.}
 }
 \value{
 A list with components \code{statistic}, \code{p_value}, \code{alternative},
-and \code{method}.
+\code{method}, and \code{n}.
 }
 \description{
-Tests whether two sets of forecast errors have equal predictive accuracy,
-following Diebold and Mariano (1995).
+Tests whether two sets of forecast errors have equal predictive accuracy.
+Implements the modified test of Harvey, Leybourne, and Newbold (1997),
+which applies a finite-sample correction to the original Diebold and
+Mariano (1995) statistic and uses the \emph{t} distribution rather than the
+normal. The Bartlett (triangular) kernel is used for HAC variance
+estimation, which guarantees a non-negative variance estimate.
 }
 \examples{
 set.seed(1)
@@ -43,4 +47,8 @@ nc_dm_test(e1, e2)
 Diebold, F.X. and Mariano, R.S. (1995). Comparing predictive accuracy.
 \emph{Journal of Business & Economic Statistics}, 13(3), 253--263.
 \doi{10.1080/07350015.1995.10524599}
+
+Harvey, D., Leybourne, S. and Newbold, P. (1997). Testing the equality
+of prediction mean squared errors. \emph{International Journal of Forecasting},
+13(2), 281--291. \doi{10.1016/S0169-2070(96)00719-4}
 }

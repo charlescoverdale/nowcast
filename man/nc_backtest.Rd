@@ -8,6 +8,7 @@ nc_backtest(
   formula,
   data,
   method = "bridge",
+  ar_order = 1L,
   start = 10L,
   window = c("expanding", "rolling"),
   window_size = 20L,
@@ -21,6 +22,9 @@ nc_backtest(
 
 \item{method}{Character. Currently only \code{"bridge"} is supported.}
 
+\item{ar_order}{Integer. Number of autoregressive lags of the target to
+include (default 1). Set to 0 for a static bridge equation.}
+
 \item{start}{Integer. Minimum number of observations before the first
 backtest evaluation (default 10).}
 
@@ -29,7 +33,7 @@ backtest evaluation (default 10).}
 \item{window_size}{Integer. Number of observations in the rolling window
 (ignored if \code{window = "expanding"}).}
 
-\item{alpha}{Numeric. Significance level for confidence intervals
+\item{alpha}{Numeric. Significance level for prediction intervals
 (default 0.05).}
 }
 \value{
@@ -44,10 +48,22 @@ A \code{nowcast_backtest} object with components:
 }
 }
 \description{
-Evaluate a nowcasting method by simulating its real-time performance.
-At each evaluation date, the model is estimated using only data that
-would have been available at that point (expanding or rolling window),
-then used to nowcast the next period.
+Evaluate a nowcasting method by simulating its real-time performance on
+final revised data. At each evaluation step, the model is estimated using
+only data from periods 1 to \emph{i}-1 (expanding window) or a rolling window
+ending at \emph{i}-1, then used to produce a nowcast for period \emph{i}. The
+nowcast is compared against the actual value at period \emph{i}.
+}
+\details{
+This is a \strong{pseudo-real-time} exercise: it uses final revised data
+throughout, not the data that would have been available at each point
+in time (vintage data). As noted by Banbura et al. (2013, ECB WP 1564),
+data revisions can be material for some variables, so results may
+overstate true real-time accuracy.
+
+Prediction intervals are computed using the full prediction standard
+error from \code{predict.lm(..., interval = "prediction")}, accounting for
+both residual variance and coefficient estimation uncertainty.
 }
 \examples{
 set.seed(42)

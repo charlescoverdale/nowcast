@@ -21,6 +21,14 @@ Aggregate a time series from a higher frequency to a lower frequency.
 For example, convert monthly data to quarterly by taking the mean, sum,
 or last observation.
 }
+\details{
+The default aggregation function is \link{mean}, which is appropriate for
+\strong{flow variables} measured as rates or indices (e.g. GDP growth, CPI).
+For flow variables measured in levels (e.g. total retail sales), use
+\code{fun = sum}. For \strong{stock variables} (e.g. interest rates, exchange
+rates), use \code{fun = function(x, ...) tail(x, 1)} to take the
+end-of-period value.
+}
 \examples{
 monthly <- data.frame(
   date = seq(as.Date("2020-01-01"), as.Date("2020-12-01"), by = "month"),

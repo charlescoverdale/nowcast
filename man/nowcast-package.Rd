@@ -4,9 +4,9 @@
 \name{nowcast-package}
 \alias{nowcast}
 \alias{nowcast-package}
-\title{nowcast: Economic Nowcasting with Bridge Equations, 'MIDAS', and Dynamic Factor Models}
+\title{nowcast: Economic Nowcasting with Bridge Equations and Real-Time Evaluation}
 \description{
-Implements nowcasting methods for mixed-frequency macroeconomic data. Provides bridge equations via OLS, Mixed Data Sampling ('MIDAS') regressions following Ghysels, Santa-Clara, and Valkanov (2004) \doi{10.1016/j.jeconom.2003.10.008}, and dynamic factor models following Stock and Watson (2002) \doi{10.1198/016214502388618960}. Handles the ragged-edge problem where different indicators have different publication lags. Includes pseudo-real-time evaluation with expanding or rolling windows, and forecast comparison via the Diebold-Mariano test. No API calls; designed to work with data from any source.
+Provides bridge equations with optional autoregressive terms for nowcasting low-frequency macroeconomic variables (e.g. quarterly GDP) from higher-frequency indicators (e.g. monthly retail sales). Handles the ragged-edge problem where different indicators have different publication lags via mixed-frequency alignment. Includes pseudo-real-time evaluation with expanding or rolling windows, and the Diebold-Mariano test for comparing forecast accuracy following Harvey, Leybourne, and Newbold (1997) \doi{10.1016/S0169-2070(96)00719-4}. No API calls; designed to work with data from any source.
 }
 \seealso{
 Useful links:

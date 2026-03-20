@@ -4,6 +4,18 @@
 #' series into a single aligned dataset. Monthly indicators are aggregated to
 #' the quarterly frequency using the specified function (default: mean).
 #'
+#' The default `agg_fun = mean` is appropriate for **flow variables** measured
+#' as rates or indices (GDP growth, CPI). For stock variables (interest rates,
+#' exchange rates), pass `agg_fun = function(x, ...) tail(x, 1)` to take
+#' end-of-period values. For flow variables in levels (total sales), use
+#' `agg_fun = sum`.
+#'
+#' When a quarter has fewer than `freq_ratio` monthly observations (a partial
+#' quarter at the ragged edge), the aggregation proceeds on the available
+#' data and a message is emitted. The `n_months` column in the output data
+#' frame records how many observations contributed to each quarterly value
+#' for each indicator.
+#'
 #' @param target A data frame with columns `date` (Date) and `value` (numeric)
 #'   containing the quarterly target variable (e.g. GDP growth).
 #' @param ... One or more data frames, each with columns `date` and `value`.
@@ -60,7 +72,6 @@ nc_align <- function(target, ..., freq_ratio = 3L,
   names(indicators) <- ind_names
 
   # Validate indicators
-
   for (nm in ind_names) {
     ind <- indicators[[nm]]
     validate_data_frame(ind, nm)
@@ -82,14 +93,35 @@ nc_align <- function(target, ..., freq_ratio = 3L,
   merged$target <- target$value[match(merged$date, target$quarter_date)]
 
   # Aggregate each indicator to quarterly
-
+  has_partial <- FALSE
   for (nm in ind_names) {
     ind <- indicators[[nm]]
     ind$quarter_date <- to_quarter_date(ind$date)
+
+    # Count observations per quarter (for partial-quarter detection)
+    obs_count <- stats::aggregate(
+      ind$value, by = list(quarter_date = ind$quarter_date),
+      FUN = function(x, ...) sum(!is.na(x))
+    )
+    names(obs_count) <- c("date", paste0(nm, "_n_months"))
+
+    # Check for partial quarters
+    if (any(obs_count[[2]] < freq_ratio & obs_count[[2]] > 0)) {
+      has_partial <- TRUE
+    }
+
     agg <- stats::aggregate(ind$value, by = list(quarter_date = ind$quarter_date),
                             FUN = agg_fun, na.rm = TRUE)
     names(agg) <- c("date", nm)
     merged <- merge(merged, agg, by = "date", all.x = TRUE)
+    merged <- merge(merged, obs_count, by = "date", all.x = TRUE)
+  }
+
+  if (has_partial) {
+    cli_inform(c(
+      "i" = "Some quarters have fewer than {freq_ratio} monthly observations (partial quarter).",
+      "i" = "Check {.code *_n_months} columns in the output data."
+    ))
   }
 
   # Build availability summary
@@ -151,6 +183,8 @@ nc_ragged_edge <- function(data) {
     }
     df <- data
     cols <- setdiff(names(df), "date")
+    # Exclude _n_months columns
+    cols <- cols[!grepl("_n_months$", cols)]
   }
 
   result <- data.frame(

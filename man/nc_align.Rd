@@ -37,6 +37,19 @@ Merges a quarterly target series with one or more higher-frequency indicator
 series into a single aligned dataset. Monthly indicators are aggregated to
 the quarterly frequency using the specified function (default: mean).
 }
+\details{
+The default \code{agg_fun = mean} is appropriate for \strong{flow variables} measured
+as rates or indices (GDP growth, CPI). For stock variables (interest rates,
+exchange rates), pass \code{agg_fun = function(x, ...) tail(x, 1)} to take
+end-of-period values. For flow variables in levels (total sales), use
+\code{agg_fun = sum}.
+
+When a quarter has fewer than \code{freq_ratio} monthly observations (a partial
+quarter at the ragged edge), the aggregation proceeds on the available
+data and a message is emitted. The \code{n_months} column in the output data
+frame records how many observations contributed to each quarterly value
+for each indicator.
+}
 \examples{
 # Create synthetic quarterly target and monthly indicators
 target <- data.frame(

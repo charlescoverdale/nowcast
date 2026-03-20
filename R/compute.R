@@ -1,34 +1,20 @@
 #' List Available Nowcasting Methods
 #'
 #' Returns a data frame describing the nowcasting methods implemented in
-#' the package, including whether optional backend packages are installed.
+#' the package.
 #'
-#' @return A data frame with columns `method`, `description`, `backend`,
-#'   and `backend_installed`.
+#' @return A data frame with columns `method`, `description`, and `available`.
 #'
 #' @export
 #' @examples
 #' nc_available()
 nc_available <- function() {
-  methods <- data.frame(
-    method = c("bridge", "midas", "dfm"),
-    description = c(
-      "Bridge equation via OLS",
-      "Mixed Data Sampling regression",
-      "Dynamic factor model"
-    ),
-    backend = c("none", "midasr", "dfms"),
+  data.frame(
+    method = "bridge",
+    description = "Bridge equation via OLS with optional AR terms",
+    available = TRUE,
     stringsAsFactors = FALSE
   )
-
-  methods$backend_installed <- vapply(methods$backend, function(pkg) {
-    if (pkg == "none") return(TRUE)
-    requireNamespace(pkg, quietly = TRUE)
-  }, logical(1))
-
-  methods$available <- c(TRUE, FALSE, FALSE)  # MVP: only bridge
-
-  methods
 }
 
 #' Compute a Nowcast by Method Name
@@ -59,7 +45,9 @@ nc_compute <- function(data, method = "bridge", ...) {
       args <- list(...)
       if ("formula" %in% names(args)) {
         nc_bridge(formula = args$formula, data = data,
-                  newdata = args$newdata, alpha = args$alpha %||% 0.05)
+                  newdata = args$newdata,
+                  ar_order = args$ar_order %||% 1L,
+                  alpha = args$alpha %||% 0.05)
       } else {
         # If first unnamed arg is a formula
         dots <- list(...)

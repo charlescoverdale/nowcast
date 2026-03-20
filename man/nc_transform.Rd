@@ -11,8 +11,8 @@ nc_transform(data, method = c("diff", "log_diff", "standardize"))
 vector.}
 
 \item{method}{Character. One of \code{"diff"} (first difference), \code{"log_diff"}
-(log first difference, i.e. growth rate), or \code{"standardize"} (zero mean,
-unit variance).}
+(log first difference, i.e. percentage growth rate), or \code{"standardize"}
+(zero mean, unit variance).}
 }
 \value{
 A data frame with columns \code{date} and \code{value} (if input was a data

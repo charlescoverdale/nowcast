@@ -7,12 +7,11 @@
 nc_available()
 }
 \value{
-A data frame with columns \code{method}, \code{description}, \code{backend},
-and \code{backend_installed}.
+A data frame with columns \code{method}, \code{description}, and \code{available}.
 }
 \description{
 Returns a data frame describing the nowcasting methods implemented in
-the package, including whether optional backend packages are installed.
+the package.
 }
 \examples{
 nc_available()

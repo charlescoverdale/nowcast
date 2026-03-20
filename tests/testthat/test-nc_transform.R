@@ -50,7 +50,6 @@ test_that("nc_transform log_diff computes growth rates", {
   )
   result <- nc_transform(df, method = "log_diff")
   expect_equal(nrow(result), 2)
-  # log(110/100) * 100 ≈ 9.531
   expect_equal(result$value[1], log(110 / 100) * 100, tolerance = 1e-6)
 })
 
@@ -83,4 +82,26 @@ test_that("nc_transform preserves date ordering", {
   result <- nc_transform(df, method = "diff")
   expect_equal(result$date, as.Date(c("2020-02-01", "2020-03-01")))
   expect_equal(result$value, c(100, 100))
+})
+
+# --- Edge case tests (audit issue #11) ---
+
+test_that("nc_transform log_diff errors on non-positive values", {
+  df <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 3),
+    value = c(100, -5, 50)
+  )
+  expect_error(nc_transform(df, method = "log_diff"), "strictly positive")
+})
+
+test_that("nc_transform log_diff errors on zero values", {
+  expect_error(nc_transform(c(100, 0, 50), method = "log_diff"), "strictly positive")
+})
+
+test_that("nc_transform standardize errors on constant values", {
+  df <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 5),
+    value = rep(5, 5)
+  )
+  expect_error(nc_transform(df, method = "standardize"), "zero")
 })

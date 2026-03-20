@@ -4,7 +4,7 @@
 \alias{nc_bridge}
 \title{Bridge Equation Nowcast}
 \usage{
-nc_bridge(formula, data, newdata = NULL, alpha = 0.05)
+nc_bridge(formula, data, newdata = NULL, ar_order = 1L, alpha = 0.05)
 }
 \arguments{
 \item{formula}{A formula with the target variable on the left-hand side
@@ -16,7 +16,11 @@ and indicator variables on the right (e.g. \code{target ~ ind1 + ind2}).}
 \item{newdata}{A one-row data frame with indicator values for the nowcast
 period. If \code{NULL}, the last complete row of \code{data} is used.}
 
-\item{alpha}{Numeric. Significance level for confidence intervals
+\item{ar_order}{Integer. Number of autoregressive lags of the target to
+include (default 1). Set to 0 for a static bridge equation with no
+AR terms.}
+
+\item{alpha}{Numeric. Significance level for prediction intervals
 (default 0.05).}
 }
 \value{
@@ -24,9 +28,17 @@ A \code{nowcast_result} object.
 }
 \description{
 Estimate a bridge equation via OLS and produce a nowcast for the current
-or specified period. Bridge equations are the simplest nowcasting method:
-monthly indicators are aggregated to the quarterly frequency and used as
-regressors for quarterly GDP growth.
+or specified period. Bridge equations translate higher-frequency indicators
+(e.g. monthly) into estimates of a lower-frequency target (e.g. quarterly
+GDP). Following standard central bank practice (Baffigi et al. 2004,
+Runstler and Sedillot 2003), an autoregressive term for the target
+variable can be included via the \code{ar_order} argument.
+}
+\details{
+Prediction intervals are computed using the full prediction standard error,
+which accounts for both residual variance and estimation uncertainty in the
+coefficients, evaluated against a \emph{t} distribution with appropriate degrees
+of freedom.
 }
 \examples{
 # Synthetic example
@@ -38,4 +50,9 @@ d <- data.frame(
   ind2 = cumsum(rnorm(10, 0.3, 0.4))
 )
 nc_bridge(gdp ~ ind1 + ind2, data = d)
+}
+\references{
+Baffigi, A., Golinelli, R. and Parigi, G. (2004). Bridge models to
+forecast the euro area GDP. \emph{International Journal of Forecasting},
+20(3), 447--460.
 }

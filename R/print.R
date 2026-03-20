@@ -8,10 +8,7 @@
 #' @export
 print.nowcast_result <- function(x, ...) {
   method_names <- c(
-    bridge = "Bridge Equation",
-    midas = "MIDAS Regression",
-    dfm = "Dynamic Factor Model",
-    combined = "Combined Nowcast"
+    bridge = "Bridge Equation"
   )
   method_label <- method_names[x$method]
 

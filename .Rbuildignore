@@ -8,3 +8,4 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^research_existing_packages\.md$
