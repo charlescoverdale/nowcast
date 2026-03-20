@@ -1,0 +1,34 @@
+Package: nowcast
+Title: Economic Nowcasting with Bridge Equations, 'MIDAS', and Dynamic Factor
+    Models
+Version: 0.1.0
+Authors@R: person("Charles", "Coverdale", email = "charlesfcoverdale@gmail.com",
+    role = c("aut", "cre", "cph"))
+Description: Implements nowcasting methods for mixed-frequency macroeconomic
+    data. Provides bridge equations via OLS, Mixed Data Sampling ('MIDAS')
+    regressions following Ghysels, Santa-Clara, and Valkanov (2004)
+    <doi:10.1016/j.jeconom.2003.10.008>, and dynamic factor models following
+    Stock and Watson (2002) <doi:10.1198/016214502388618960>. Handles the
+    ragged-edge problem where different indicators have different publication
+    lags. Includes pseudo-real-time evaluation with expanding or rolling
+    windows, and forecast comparison via the Diebold-Mariano test.
+    No API calls; designed to work with data from any source.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Language: en-US
+URL: https://github.com/charlescoverdale/nowcast
+BugReports: https://github.com/charlescoverdale/nowcast/issues
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.1.0)
+Imports:
+    cli (>= 3.6.0),
+    grDevices,
+    graphics,
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    midasr,
+    dfms,
+    ggplot2
+Config/testthat/edition: 3
