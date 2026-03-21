@@ -66,6 +66,7 @@ error from \code{predict.lm(..., interval = "prediction")}, accounting for
 both residual variance and coefficient estimation uncertainty.
 }
 \examples{
+\donttest{
 set.seed(42)
 n <- 30
 d <- data.frame(
@@ -75,4 +76,5 @@ d <- data.frame(
 )
 bt <- nc_backtest(gdp ~ ind1, data = d, start = 15)
 bt
+}
 }

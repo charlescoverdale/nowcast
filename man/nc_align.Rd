@@ -42,7 +42,8 @@ The default \code{agg_fun = mean} is appropriate for \strong{flow variables} mea
 as rates or indices (GDP growth, CPI). For stock variables (interest rates,
 exchange rates), pass \code{agg_fun = function(x, ...) tail(x, 1)} to take
 end-of-period values. For flow variables in levels (total sales), use
-\code{agg_fun = sum}.
+\code{agg_fun = sum} -- but note that \code{sum} will understate the true quarterly
+total for partial quarters at the ragged edge (a warning is emitted).
 
 When a quarter has fewer than \code{freq_ratio} monthly observations (a partial
 quarter at the ragged edge), the aggregation proceeds on the available

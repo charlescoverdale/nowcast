@@ -12,6 +12,13 @@
 #' coefficients, evaluated against a *t* distribution with appropriate degrees
 #' of freedom.
 #'
+#' When `ar_order > 0`, the model includes a lagged dependent variable.
+#' The reported standard errors assume homoskedastic, serially uncorrelated
+#' errors. If residuals exhibit autocorrelation (indicated by the Durbin-Watson
+#' statistic in `details$dw_stat`), consider extracting the fitted model via
+#' `result$model` and applying HAC standard errors from the
+#' \pkg{sandwich} package.
+#'
 #' @param formula A formula with the target variable on the left-hand side
 #'   and indicator variables on the right (e.g. `target ~ ind1 + ind2`).
 #' @param data A data frame (or `nc_dataset`) containing the variables in
@@ -33,6 +40,7 @@
 #'
 #' @export
 #' @examples
+#' \donttest{
 #' # Synthetic example
 #' set.seed(42)
 #' d <- data.frame(
@@ -42,6 +50,7 @@
 #'   ind2 = cumsum(rnorm(10, 0.3, 0.4))
 #' )
 #' nc_bridge(gdp ~ ind1 + ind2, data = d)
+#' }
 nc_bridge <- function(formula, data, newdata = NULL, ar_order = 1L,
                       alpha = 0.05) {
   if (!inherits(formula, "formula")) {
@@ -91,7 +100,7 @@ nc_bridge <- function(formula, data, newdata = NULL, ar_order = 1L,
   # Check for zero-variance columns among predictors
   pred_vars <- all.vars(formula[[3]])
   for (pv in pred_vars) {
-    if (pv %in% names(fit_data) && stats::var(fit_data[[pv]], na.rm = TRUE) == 0) {
+    if (pv %in% names(fit_data) && stats::var(fit_data[[pv]], na.rm = TRUE) < .Machine$double.eps) {
       cli_abort("Predictor {.field {pv}} has zero variance.")
     }
   }
@@ -162,6 +171,16 @@ nc_bridge <- function(formula, data, newdata = NULL, ar_order = 1L,
   coefs <- as.data.frame(summary(fit)$coefficients)
   names(coefs) <- c("estimate", "std_error", "t_value", "p_value")
 
+  # Durbin-Watson statistic for residual autocorrelation diagnostic
+  resids <- stats::residuals(fit)
+  dw_stat <- sum(diff(resids)^2) / sum(resids^2)
+  if (ar_order > 0 && (dw_stat < 1.5 || dw_stat > 2.5)) {
+    cli_inform(c(
+      "i" = "Durbin-Watson = {.val {round(dw_stat, 3)}} suggests residual autocorrelation.",
+      "i" = "OLS standard errors may be unreliable. Consider HAC SEs via {.pkg sandwich}."
+    ))
+  }
+
   new_nowcast_result(
     nowcast = nc_val,
     se = se,
@@ -177,6 +196,7 @@ nc_bridge <- function(formula, data, newdata = NULL, ar_order = 1L,
       adj_r_squared = summary(fit)$adj.r.squared,
       aic = stats::AIC(fit),
       bic = stats::BIC(fit),
+      dw_stat = dw_stat,
       n_obs = sum(cc),
       ar_order = ar_order,
       formula = formula

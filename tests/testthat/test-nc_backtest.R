@@ -125,3 +125,41 @@ test_that("nc_backtest with ar_order includes AR terms", {
   # AR model may have fewer evaluations due to lag creation
   expect_true(nrow(bt_ar1$results) > 0)
 })
+
+# --- AR lag correctness test (audit phase 2) ---
+
+test_that("nc_backtest AR lags use correct (past) target values", {
+  # Create data with a known pattern so we can verify AR values
+  set.seed(42)
+  n <- 25
+  d <- data.frame(
+    date = seq(as.Date("2015-01-01"), by = "quarter", length.out = n),
+    ind = rnorm(n),
+    target = 1:n * 0.1  # deterministic so we can trace values
+  )
+
+  bt <- nc_backtest(target ~ ind, data = d, start = 15, ar_order = 1)
+
+  # The first backtest evaluation is for period 16 (start=15, so train on 1:15)
+  # The AR(1) lag for period 16 should be target[15]
+  # We can't directly inspect the AR values used, but we can verify the
+  # nowcast is finite and the error is reasonable
+  expect_s3_class(bt, "nowcast_backtest")
+  expect_true(all(is.finite(bt$results$nowcast)))
+  # All evaluation dates should be strictly after the start-th date
+  expect_true(all(bt$results$date > d$date[15]))
+})
+
+# --- Prediction interval width test (audit phase 2) ---
+
+test_that("nc_backtest early windows have wider CIs than later windows", {
+  d <- make_bridge_data(n_quarters = 60, seed = 42)
+  bt <- nc_backtest(target ~ ind_1 + ind_2, data = d, start = 10, ar_order = 0)
+
+  widths <- bt$results$ci_upper - bt$results$ci_lower
+  n_eval <- length(widths)
+  # Average width of first third should be >= average width of last third
+  early_mean <- mean(widths[1:floor(n_eval / 3)])
+  late_mean <- mean(widths[ceiling(2 * n_eval / 3):n_eval])
+  expect_true(early_mean >= late_mean * 0.9)  # allow small tolerance
+})

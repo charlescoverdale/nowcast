@@ -41,6 +41,7 @@
 #'
 #' @export
 #' @examples
+#' \donttest{
 #' set.seed(42)
 #' n <- 30
 #' d <- data.frame(
@@ -50,6 +51,7 @@
 #' )
 #' bt <- nc_backtest(gdp ~ ind1, data = d, start = 15)
 #' bt
+#' }
 nc_backtest <- function(formula, data, method = "bridge", ar_order = 1L,
                         start = 10L, window = c("expanding", "rolling"),
                         window_size = 20L, alpha = 0.05) {
@@ -131,7 +133,7 @@ nc_backtest <- function(formula, data, method = "bridge", ar_order = 1L,
     }
 
     fit <- tryCatch(
-      stats::lm(work_formula, data = train_fit),
+      stats::lm(work_formula, data = train_fit[train_cc, , drop = FALSE]),
       error = function(e) NULL
     )
     if (is.null(fit)) next

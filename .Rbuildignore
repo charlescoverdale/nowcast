@@ -9,3 +9,4 @@
 ^docs$
 ^pkgdown$
 ^research_existing_packages\.md$
+^cran-comments\.md$

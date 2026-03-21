@@ -38,10 +38,12 @@ normal. The Bartlett (triangular) kernel is used for HAC variance
 estimation, which guarantees a non-negative variance estimate.
 }
 \examples{
+\donttest{
 set.seed(1)
 e1 <- rnorm(50, sd = 1)
 e2 <- rnorm(50, sd = 1.5)
 nc_dm_test(e1, e2)
+}
 }
 \references{
 Diebold, F.X. and Mariano, R.S. (1995). Comparing predictive accuracy.

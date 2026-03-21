@@ -132,3 +132,38 @@ test_that("nc_ragged_edge works on plain data frame", {
 test_that("nc_ragged_edge errors on data without date column", {
   expect_error(nc_ragged_edge(data.frame(x = 1)), "date")
 })
+
+# --- Audit phase 2: indicators extending beyond target ---
+
+test_that("nc_align handles indicators extending beyond target period", {
+  target <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "quarter", length.out = 4),
+    value = c(1, 2, 3, 4)
+  )
+  # Indicator extends 3 months beyond target
+  ind <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 15),
+    value = rnorm(15)
+  )
+  ds <- nc_align(target, ind = ind)
+
+  # Should still have 4 rows (target quarters only)
+  expect_equal(nrow(ds$data), 4)
+  expect_true(all(!is.na(ds$data$ind)))
+})
+
+test_that("nc_align warns when sum aggregation used with partial quarters", {
+  target <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "quarter", length.out = 4),
+    value = c(1, 2, 3, 4)
+  )
+  # Only 11 months -- Q4 has only 2 months
+  ind <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 11),
+    value = rep(1, 11)
+  )
+  expect_warning(
+    nc_align(target, ind = ind, agg_fun = sum),
+    "sum"
+  )
+})

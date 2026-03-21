@@ -39,8 +39,16 @@ Prediction intervals are computed using the full prediction standard error,
 which accounts for both residual variance and estimation uncertainty in the
 coefficients, evaluated against a \emph{t} distribution with appropriate degrees
 of freedom.
+
+When \code{ar_order > 0}, the model includes a lagged dependent variable.
+The reported standard errors assume homoskedastic, serially uncorrelated
+errors. If residuals exhibit autocorrelation (indicated by the Durbin-Watson
+statistic in \code{details$dw_stat}), consider extracting the fitted model via
+\code{result$model} and applying HAC standard errors from the
+\pkg{sandwich} package.
 }
 \examples{
+\donttest{
 # Synthetic example
 set.seed(42)
 d <- data.frame(
@@ -50,6 +58,7 @@ d <- data.frame(
   ind2 = cumsum(rnorm(10, 0.3, 0.4))
 )
 nc_bridge(gdp ~ ind1 + ind2, data = d)
+}
 }
 \references{
 Baffigi, A., Golinelli, R. and Parigi, G. (2004). Bridge models to

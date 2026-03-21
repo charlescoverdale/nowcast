@@ -30,13 +30,15 @@ nc_available <- function() {
 #'
 #' @export
 #' @examples
+#' \donttest{
 #' set.seed(42)
 #' d <- data.frame(
 #'   date = as.Date(paste0(2015:2024, "-01-01")),
 #'   gdp = cumsum(rnorm(10, 0.5, 0.3)),
 #'   ind1 = cumsum(rnorm(10, 0.4, 0.2))
 #' )
-#' nc_compute(gdp ~ ind1, data = d, method = "bridge")
+#' nc_compute(d, method = "bridge", formula = gdp ~ ind1)
+#' }
 nc_compute <- function(data, method = "bridge", ...) {
   method <- match.arg(method, choices = c("bridge"))
 
@@ -46,13 +48,12 @@ nc_compute <- function(data, method = "bridge", ...) {
       if ("formula" %in% names(args)) {
         nc_bridge(formula = args$formula, data = data,
                   newdata = args$newdata,
-                  ar_order = args$ar_order %||% 1L,
-                  alpha = args$alpha %||% 0.05)
+                  ar_order = if (is.null(args$ar_order)) 1L else args$ar_order,
+                  alpha = if (is.null(args$alpha)) 0.05 else args$alpha)
       } else {
         # If first unnamed arg is a formula
-        dots <- list(...)
-        if (length(dots) > 0 && inherits(dots[[1]], "formula")) {
-          nc_bridge(formula = dots[[1]], data = data)
+        if (length(args) > 0 && inherits(args[[1]], "formula")) {
+          nc_bridge(formula = args[[1]], data = data)
         } else {
           cli_abort("Method {.val bridge} requires a {.arg formula}.")
         }
@@ -60,6 +61,3 @@ nc_compute <- function(data, method = "bridge", ...) {
     }
   )
 }
-
-# Null-coalescing operator
-`%||%` <- function(x, y) if (is.null(x)) y else x

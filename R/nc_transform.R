@@ -100,7 +100,7 @@ nc_transform <- function(data,
   }
   if (method == "standardize") {
     s <- stats::sd(x, na.rm = TRUE)
-    if (is.na(s) || s == 0) {
+    if (is.na(s) || s < .Machine$double.eps) {
       cli_abort("Cannot standardize: standard deviation is zero or NA.")
     }
   }

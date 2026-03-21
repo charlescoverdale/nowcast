@@ -105,3 +105,15 @@ test_that("nc_transform standardize errors on constant values", {
   )
   expect_error(nc_transform(df, method = "standardize"), "zero")
 })
+
+# --- Audit phase 2: nc_aggregate with sum and NAs ---
+
+test_that("nc_aggregate with sum drops NAs silently", {
+  monthly <- data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 3),
+    value = c(10, NA, 30)
+  )
+  quarterly <- nc_aggregate(monthly, to = "quarterly", fun = sum)
+  # sum(10, NA, 30, na.rm = TRUE) = 40, not 60
+  expect_equal(quarterly$value[1], 40)
+})

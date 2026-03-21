@@ -42,13 +42,6 @@ to_year_date <- function(dates) {
   as.Date(paste0(format(dates, "%Y"), "-01-01"))
 }
 
-# Count available observations per quarter
-count_obs_in_quarter <- function(dates) {
-
-  qd <- to_quarter_date(dates)
-  as.data.frame(table(quarter = qd), stringsAsFactors = FALSE)
-}
-
 # Construct a nowcast_result object
 new_nowcast_result <- function(nowcast, se = NA_real_, ci_lower = NA_real_,
                                 ci_upper = NA_real_, method, target_period,

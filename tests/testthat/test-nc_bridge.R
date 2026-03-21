@@ -193,3 +193,38 @@ test_that("nc_bridge warns on multicollinear predictors", {
     "NA"
   )
 })
+
+# --- Nowcasting use case: last target is NA (audit phase 2) ---
+
+test_that("nc_bridge works when last target value is NA", {
+  d <- make_bridge_data(n_quarters = 20, seed = 42)
+  d$target[20] <- NA  # current quarter unknown
+  result <- nc_bridge(target ~ ind_1 + ind_2, data = d, ar_order = 0)
+
+  expect_s3_class(result, "nowcast_result")
+  expect_true(is.finite(result$nowcast))
+  expect_true(is.finite(result$se))
+  # Model should be fit on 19 observations
+  expect_equal(result$details$n_obs, 19)
+})
+
+test_that("nc_bridge with AR terms works when last target is NA", {
+  d <- make_bridge_data(n_quarters = 20, seed = 42)
+  d$target[20] <- NA
+  result <- nc_bridge(target ~ ind_1 + ind_2, data = d, ar_order = 1)
+
+  expect_s3_class(result, "nowcast_result")
+  expect_true(is.finite(result$nowcast))
+  # AR lag should use target[19], not NA
+  expect_equal(result$details$n_obs, 18)  # 19 minus 1 for AR lag
+})
+
+# --- Durbin-Watson diagnostic ---
+
+test_that("nc_bridge returns Durbin-Watson statistic", {
+  d <- make_bridge_data(n_quarters = 30, seed = 42)
+  result <- nc_bridge(target ~ ind_1 + ind_2, data = d)
+  expect_true(!is.null(result$details$dw_stat))
+  expect_true(is.numeric(result$details$dw_stat))
+  expect_true(result$details$dw_stat > 0 && result$details$dw_stat < 4)
+})

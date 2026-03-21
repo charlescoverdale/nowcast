@@ -65,10 +65,12 @@ nc_evaluate <- function(forecast, actual) {
 #'
 #' @export
 #' @examples
+#' \donttest{
 #' set.seed(1)
 #' e1 <- rnorm(50, sd = 1)
 #' e2 <- rnorm(50, sd = 1.5)
 #' nc_dm_test(e1, e2)
+#' }
 nc_dm_test <- function(e1, e2, alternative = c("two.sided", "less", "greater"),
                        h = 1L, loss = c("squared", "absolute")) {
   alternative <- match.arg(alternative)

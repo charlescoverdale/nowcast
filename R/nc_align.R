@@ -8,7 +8,8 @@
 #' as rates or indices (GDP growth, CPI). For stock variables (interest rates,
 #' exchange rates), pass `agg_fun = function(x, ...) tail(x, 1)` to take
 #' end-of-period values. For flow variables in levels (total sales), use
-#' `agg_fun = sum`.
+#' `agg_fun = sum` -- but note that `sum` will understate the true quarterly
+#' total for partial quarters at the ragged edge (a warning is emitted).
 #'
 #' When a quarter has fewer than `freq_ratio` monthly observations (a partial
 #' quarter at the ragged edge), the aggregation proceeds on the available
@@ -118,10 +119,19 @@ nc_align <- function(target, ..., freq_ratio = 3L,
   }
 
   if (has_partial) {
-    cli_inform(c(
-      "i" = "Some quarters have fewer than {freq_ratio} monthly observations (partial quarter).",
-      "i" = "Check {.code *_n_months} columns in the output data."
-    ))
+    is_sum <- identical(agg_fun, sum) || identical(agg_fun, base::sum)
+    if (is_sum) {
+      cli_warn(c(
+        "!" = "Partial quarters detected with {.code sum} aggregation.",
+        "i" = "Sums for partial quarters will understate the true quarterly total.",
+        "i" = "Check {.code *_n_months} columns in the output data."
+      ))
+    } else {
+      cli_inform(c(
+        "i" = "Some quarters have fewer than {freq_ratio} monthly observations (partial quarter).",
+        "i" = "Check {.code *_n_months} columns in the output data."
+      ))
+    }
   }
 
   # Build availability summary
