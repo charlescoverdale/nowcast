@@ -7,16 +7,19 @@
 ## Installation
 
 ```r
+install.packages("nowcast")
+
+# Or install the development version from GitHub
 # install.packages("devtools")
-devtools::install_github("charlescoverdale/nowcast")
+# devtools::install_github("charlescoverdale/nowcast")
 ```
 
 ```r
 library(nowcast)
 
 # Nowcast GDP from monthly indicators — 3 lines of code
-aligned <- nc_align(gdp_quarterly, retail = monthly_retail, ip = monthly_ip)
-result <- nc_bridge(target ~ retail + ip, data = aligned)
+aligned <- nc_align(gdp, retail = retail, ip = ip)
+result  <- nc_bridge(target ~ retail + ip, data = aligned)
 result$nowcast
 ```
 
@@ -37,17 +40,15 @@ The fundamental challenge is the **ragged edge**: different indicators have diff
 | Feature | **nowcast** | **bridgr** | **midasr** | **dfms** |
 |---|---|---|---|---|
 | Bridge equations | Yes (with AR terms) | Yes | No | No |
-| MIDAS | Planned (v0.2.0) | No | Yes | No |
-| Dynamic factor models | Planned (v0.2.0) | No | No | Yes |
 | Mixed-frequency alignment | Yes | No | No | Yes |
 | Ragged-edge diagnostics | Yes | No | No | Yes |
 | Pseudo-real-time backtest | Yes | No | Yes (rolling) | No |
 | Diebold-Mariano test | Yes (HLN corrected) | No | No | No |
-| Unified interface | Yes | N/A | N/A | N/A |
+| MIDAS | No | No | Yes | No |
+| Dynamic factor models | No | No | No | Yes |
 | Dependencies | 1 (cli) | 8+ (tidyverse) | 6+ | 3 |
-| Last updated | 2026 | 2026 | 2025 | 2026 |
 
-**nowcast** is designed to be the lightweight, unified framework that connects these methods. `bridgr` does bridge equations within the tidyverse ecosystem. `midasr` is a mature MIDAS implementation. `dfms` is a high-quality DFM package with a C++ backend. **nowcast** aims to bring bridge equations, MIDAS, and DFM under one interface with integrated evaluation — so you can compare methods on the same data with the same metrics.
+**nowcast** provides bridge equations with integrated evaluation in a lightweight package. `bridgr` does bridge equations within the tidyverse ecosystem. `midasr` is a mature MIDAS implementation. `dfms` is a high-quality DFM package with a C++ backend. **nowcast** differentiates through its evaluation framework — pseudo-real-time backtesting and the HLN-corrected Diebold-Mariano test — so you can rigorously compare nowcasting specifications on the same data.
 
 ---
 
@@ -187,11 +188,10 @@ The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997)
 
 ## Limitations
 
-- **Bridge equations only (v0.1.0).** MIDAS regressions and dynamic factor models are planned for v0.2.0.
+- **Bridge equations only.** MIDAS regressions and dynamic factor models are not currently implemented. For MIDAS, see `midasr`. For DFMs, see `dfms`.
 - **Pseudo-real-time evaluation only.** The backtest uses final revised data, not vintage data. Data revisions can be material (Banbura et al. 2013, ECB WP 1564). True real-time evaluation requires vintage data that the user must supply.
 - **No automatic indicator forecasting at the ragged edge.** When only 1-2 months of the current quarter are available, `nc_bridge()` uses whatever the user provides in `newdata`. It does not automatically forecast the missing months with AR/ARIMA. Central bank implementations typically do this, but it introduces model-within-model complexity.
-- **OLS standard errors.** The reported coefficient standard errors assume homoskedastic, serially uncorrelated errors. For HAC-robust inference, users can extract the fitted model via `result$model` and apply the `sandwich` package.
-- **No Kalman filter.** The PCA-based approach planned for DFM (v0.2.0) handles estimation but not ragged-edge filtering properly. For production DFM nowcasting with ragged edges, use `dfms`.
+- **OLS standard errors.** The reported coefficient standard errors assume homoskedastic, serially uncorrelated errors. A Durbin-Watson statistic is reported in `result$details$dw_stat` to help diagnose autocorrelation. For HAC-robust inference, extract the fitted model via `result$model` and apply the `sandwich` package.
 
 ---
 
