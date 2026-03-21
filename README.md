@@ -2,7 +2,7 @@
 
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-**nowcast** is an R package for economic nowcasting — estimating the current state of a macroeconomic variable (like GDP) before the official data are released, using higher-frequency indicators that are available sooner.
+**nowcast** is an R package for economic nowcasting. It estimates the current state of a macroeconomic variable (like GDP) before the official data are released, using higher-frequency indicators that are available sooner.
 
 ## Installation
 
@@ -17,7 +17,7 @@ install.packages("nowcast")
 ```r
 library(nowcast)
 
-# Nowcast GDP from monthly indicators — 3 lines of code
+# Nowcast GDP from monthly indicators
 aligned <- nc_align(gdp, retail = retail, ip = ip)
 result  <- nc_bridge(target ~ retail + ip, data = aligned)
 result$nowcast
@@ -27,11 +27,11 @@ result$nowcast
 
 ## Why nowcasting?
 
-GDP is published with a lag — typically 6 to 8 weeks after the quarter ends. But monthly indicators like retail sales, industrial production, and labour market data arrive much sooner. Nowcasting uses these higher-frequency series to estimate GDP growth in real time, before the official number appears.
+GDP is published with a lag, typically 6 to 8 weeks after the quarter ends. But monthly indicators like retail sales, industrial production, and labour market data arrive much sooner. Nowcasting uses these higher-frequency series to estimate GDP growth in real time, before the official number appears.
 
-The fundamental challenge is the **ragged edge**: different indicators have different publication lags. Retail sales might be available through February, industrial production only through January, and employment through December — all at the same calendar date. A nowcasting model must work with this jagged pattern of data availability.
+The core challenge is the **ragged edge**: different indicators have different publication lags. Retail sales might be available through February, industrial production only through January, and employment through December, all at the same calendar date. A nowcasting model must handle this jagged pattern of data availability.
 
-**nowcast** provides the tools to align mixed-frequency data, estimate bridge equations (the workhorse model at most central banks), and rigorously evaluate nowcast performance through pseudo-real-time backtesting.
+**nowcast** aligns mixed-frequency data, estimates bridge equations (the standard model at most central banks), and evaluates nowcast performance through pseudo-real-time backtesting.
 
 ---
 
@@ -48,7 +48,7 @@ The fundamental challenge is the **ragged edge**: different indicators have diff
 | Dynamic factor models | No | No | No | Yes |
 | Dependencies | 1 (cli) | 8+ (tidyverse) | 6+ | 3 |
 
-**nowcast** provides bridge equations with integrated evaluation in a lightweight package. `bridgr` does bridge equations within the tidyverse ecosystem. `midasr` is a mature MIDAS implementation. `dfms` is a high-quality DFM package with a C++ backend. **nowcast** differentiates through its evaluation framework — pseudo-real-time backtesting and the HLN-corrected Diebold-Mariano test — so you can rigorously compare nowcasting specifications on the same data.
+**nowcast** provides bridge equations with integrated evaluation in a lightweight package. `bridgr` does bridge equations within the tidyverse ecosystem. `midasr` is a mature MIDAS implementation. `dfms` is a high-quality DFM package with a C++ backend. **nowcast** focuses on the evaluation side: pseudo-real-time backtesting and the HLN-corrected Diebold-Mariano test let you compare nowcasting specifications on the same data.
 
 ---
 
@@ -155,43 +155,43 @@ plot(bt)
 
 ### Bridge equations
 
-Bridge equations are the simplest and most widely used nowcasting method. They were developed at the ECB (Runstler and Sedillot 2003, Baffigi et al. 2004) and remain the workhorse model at most central banks and treasuries. The idea: aggregate monthly indicators to the quarterly frequency, then regress the quarterly target on those aggregated indicators.
+Bridge equations are the most widely used nowcasting method. They were developed at the ECB (Runstler and Sedillot 2003, Baffigi et al. 2004) and remain the standard model at most central banks and treasuries. The idea is simple: aggregate monthly indicators to the quarterly frequency, then regress the quarterly target on those aggregated indicators.
 
-Following standard practice, `nc_bridge()` includes an autoregressive term by default (`ar_order = 1`), capturing GDP momentum. The model is:
+Following standard practice, `nc_bridge()` includes an autoregressive term by default (`ar_order = 1`) to capture GDP momentum. The model is:
 
 $$y_t = \alpha + \phi y_{t-1} + \sum_i \beta_i \bar{x}_{i,t} + \varepsilon_t$$
 
 where $\bar{x}_{i,t}$ is the within-quarter mean of monthly indicator $i$.
 
-Prediction intervals are proper prediction intervals from `predict.lm(..., interval = "prediction")`, accounting for both residual variance and coefficient estimation uncertainty, evaluated against the *t* distribution.
+Prediction intervals come from `predict.lm(..., interval = "prediction")`, which accounts for both residual variance and coefficient estimation uncertainty, evaluated against the *t* distribution.
 
 ### Diebold-Mariano test
 
-The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997) modification of the Diebold-Mariano (1995) test. The HLN correction applies a finite-sample scaling factor and uses the *t*_{n-1} distribution rather than the standard normal, which matters at the sample sizes typical in nowcasting (20-60 quarters). The Bartlett (triangular) kernel is used for HAC variance estimation, which guarantees non-negative variance.
+The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997) modification of the Diebold-Mariano (1995) test. The HLN correction applies a finite-sample scaling factor and uses the *t*_{n-1} distribution rather than the standard normal. This matters at the sample sizes typical in nowcasting (20-60 quarters). The Bartlett (triangular) kernel is used for HAC variance estimation, which guarantees non-negative variance.
 
 ### Backtesting
 
-`nc_backtest()` performs pseudo-real-time evaluation on final revised data. At each step, the model sees only past data (expanding or rolling window) and produces a nowcast for the next period. This simulates real-time performance but does not account for data revisions — true real-time evaluation requires vintage data (e.g. from FRED's ALFRED database).
+`nc_backtest()` performs pseudo-real-time evaluation on final revised data. At each step, the model sees only past data (expanding or rolling window) and produces a nowcast for the next period. This simulates real-time performance but does not account for data revisions. True real-time evaluation requires vintage data (e.g. from FRED's ALFRED database).
 
 ---
 
 ## Design decisions
 
-- **`nc_` prefix** — short, distinctive, easy to type and autocomplete.
-- **AR terms by default** — GDP growth is serially correlated. Following ECB/BoE practice, `nc_bridge()` includes an AR(1) term by default. Set `ar_order = 0` for a static specification.
-- **Proper prediction intervals** — uses the full prediction standard error (estimation uncertainty + residual variance) and *t* quantiles, not just residual standard deviation with normal quantiles.
-- **HLN-corrected DM test** — the original Diebold-Mariano test over-rejects in small samples. The HLN correction is now the standard (used by `forecast::dm.test` in R and `statsmodels` in Python).
-- **No heavy dependencies** — depends only on `cli` and `stats`. No tidyverse, no Rcpp, no external system libraries.
-- **Pure computation** — does not download data. Pair with [`ons`](https://github.com/charlescoverdale/ons), [`boe`](https://github.com/charlescoverdale/boe), [`fred`](https://github.com/charlescoverdale/fred), or any other data source.
+- **`nc_` prefix.** Short, distinctive, easy to type and autocomplete.
+- **AR terms by default.** GDP growth is serially correlated. Following ECB/BoE practice, `nc_bridge()` includes an AR(1) term by default. Set `ar_order = 0` for a static specification.
+- **Prediction intervals.** Uses the full prediction standard error (estimation uncertainty + residual variance) and *t* quantiles, not just residual standard deviation with normal quantiles.
+- **HLN-corrected DM test.** The original Diebold-Mariano test over-rejects in small samples. The HLN correction is now standard (used by `forecast::dm.test` in R and `statsmodels` in Python).
+- **No heavy dependencies.** Depends only on `cli` and `stats`. No tidyverse, no Rcpp, no external system libraries.
+- **Pure computation.** Does not download data. Pair with [`ons`](https://github.com/charlescoverdale/ons), [`boe`](https://github.com/charlescoverdale/boe), [`fred`](https://github.com/charlescoverdale/fred), or any other data source.
 
 ---
 
 ## Limitations
 
-- **Bridge equations only.** MIDAS regressions and dynamic factor models are not currently implemented. For MIDAS, see `midasr`. For DFMs, see `dfms`.
+- **Bridge equations only.** MIDAS regressions and dynamic factor models are not implemented. For MIDAS, see `midasr`. For DFMs, see `dfms`.
 - **Pseudo-real-time evaluation only.** The backtest uses final revised data, not vintage data. Data revisions can be material (Banbura et al. 2013, ECB WP 1564). True real-time evaluation requires vintage data that the user must supply.
-- **No automatic indicator forecasting at the ragged edge.** When only 1-2 months of the current quarter are available, `nc_bridge()` uses whatever the user provides in `newdata`. It does not automatically forecast the missing months with AR/ARIMA. Central bank implementations typically do this, but it introduces model-within-model complexity.
-- **OLS standard errors.** The reported coefficient standard errors assume homoskedastic, serially uncorrelated errors. A Durbin-Watson statistic is reported in `result$details$dw_stat` to help diagnose autocorrelation. For HAC-robust inference, extract the fitted model via `result$model` and apply the `sandwich` package.
+- **No automatic indicator forecasting at the ragged edge.** When only 1-2 months of the current quarter are available, `nc_bridge()` uses whatever the user provides in `newdata`. It does not forecast the missing months with AR/ARIMA. Central bank implementations typically do this, but it adds model-within-model complexity.
+- **OLS standard errors.** The reported coefficient standard errors assume homoskedastic, serially uncorrelated errors. A Durbin-Watson statistic is reported in `result$details$dw_stat` to help diagnose autocorrelation. For HAC-robust inference, extract the fitted model via `result$model` and use the `sandwich` package.
 
 ---
 
