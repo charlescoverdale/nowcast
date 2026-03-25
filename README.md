@@ -222,3 +222,5 @@ The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997)
 ## Issues
 
 Found a bug or have a feature request? Please [open an issue](https://github.com/charlescoverdale/nowcast/issues) on GitHub.
+
+nowcasting, GDP, macroeconomics, bridge equations, mixed frequency, economic forecasting, real-time data, ragged edge, time series, R package
