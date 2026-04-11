@@ -206,16 +206,15 @@ The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997)
 
 ## Related packages
 
-| Package | Description |
+| Package | What it covers |
 |---|---|
-| [ons](https://github.com/charlescoverdale/ons) | UK Office for National Statistics data |
-| [boe](https://github.com/charlescoverdale/boe) | Bank of England data |
-| [fred](https://github.com/charlescoverdale/fred) | Federal Reserve Economic Data (FRED) |
-| [readecb](https://github.com/charlescoverdale/readecb) | European Central Bank data |
-| [readoecd](https://github.com/charlescoverdale/readoecd) | OECD data |
-| [predictset](https://github.com/charlescoverdale/predictset) | Conformal prediction and uncertainty quantification |
-| [climatekit](https://github.com/charlescoverdale/climatekit) | Climate indices from weather data |
-| [inflateR](https://github.com/charlescoverdale/inflateR) | Inflation adjustment |
+| [`ons`](https://github.com/charlescoverdale/ons) | UK Office for National Statistics data (high and low frequency indicators) |
+| [`boe`](https://github.com/charlescoverdale/boe) | Bank of England data (Bank Rate, financial conditions) |
+| [`fred`](https://github.com/charlescoverdale/fred) | Federal Reserve Economic Data (US monthly and quarterly indicators) |
+| [`readecb`](https://github.com/charlescoverdale/readecb) | European Central Bank data (HICP, monetary aggregates) |
+| [`readoecd`](https://github.com/charlescoverdale/readoecd) | OECD cross-country macro indicators |
+| [`predictset`](https://github.com/charlescoverdale/predictset) | Conformal prediction intervals around nowcast point estimates |
+| [`inflateR`](https://github.com/charlescoverdale/inflateR) | Inflation adjustment for nominal series |
 
 ---
 
