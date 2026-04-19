@@ -1,0 +1,20 @@
+Initial check results: 
+
+SUCCESS: Submission has consistently named tex, bib, and R files
+SUCCESS: File and directory names are compliant.
+NOTE: Remove .log, .aux and .out files before submitting.
+SUCCESS: No problematic file found
+SUCCESS: Possible motivation letter found: motivation-letter, motivation-letter.pdf
+SUCCESS: Article title formatted in title case.
+SUCCESS: Section titles formatted in sentence case.
+SUCCESS: Abstract formatted in plain text.
+NOTE: A potential list of spelling to check: nowcast, nowcasting, backtesting, cli, nonfarm, tidyverse, formalised, realisation, standardised, comparator, nowcasts, initialisation, optimiser, summarises, grey, nc, backtest, onwards, realised, backtests, favours, annualised, intra
+NOTE: No proposed package supplied.
+SUCCESS: No error with the use of \pkg markup.
+SUCCESS: All packages marked-up with \CRANpkg or \BIOpkg are available on CRAN or Bioconductor.
+SUCCESS: All the references contain DOI or URL
+SUCCESS: No customised csl file used. Good!
+SUCCESS: Article date is set fixed at the article submission date.
+
+SUCCESS: 12 | NOTE: 3 | WARNING: 0 | ERROR: 0
+

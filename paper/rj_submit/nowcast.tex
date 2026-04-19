@@ -1,0 +1,460 @@
+% !TeX root = RJwrapper.tex
+\title{Nowcast: Economic Nowcasting with Bridge Equations and Real-Time Evaluation in R}
+
+
+\author{by Charles Coverdale}
+
+\maketitle
+
+\abstract{%
+The nowcast package provides bridge-equation nowcasting in R. It estimates current-quarter values of a low-frequency macroeconomic variable (typically GDP) from higher-frequency indicators (retail sales, industrial production, payrolls, sentiment) that are released weeks or months ahead of the official target. Mixed-frequency alignment handles the ragged edge of real-time data. Pseudo-real-time backtesting over expanding or rolling windows produces an out-of-sample performance record, and the Diebold-Mariano test with the Harvey-Leybourne-Newbold finite-sample correction compares competing specifications on the same target. The package is pure R with cli as the only non-base import, is available on CRAN, and plugs into any source of quarterly or monthly data.
+}
+
+\section{Introduction}\label{introduction}
+
+The \CRANpkg{nowcast} package implements the standard workflow for
+bridge-equation nowcasting: mixed-frequency alignment, estimation
+with optional autoregressive terms, and pseudo-real-time evaluation.
+Ten exported functions share a uniform \code{nc\_} prefix and accept
+plain data frames of dates and values, with no hard tie to
+\CRANpkg{xts}, \CRANpkg{zoo}, or any data-vendor schema.
+
+Nowcasting (the practice of estimating a macroeconomic variable
+before it is officially released) has been standard in central banks
+since the early 2000s. GDP is typically published six to eight weeks
+after the quarter closes, but monthly indicators relevant to GDP
+arrive much sooner: US retail sales with a two- to three-week lag,
+industrial production with a two-week lag, nonfarm payrolls in the
+first week of the following month. The appeal of a nowcast is that
+it converts the flow of monthly releases during a quarter into a
+continuously updated estimate of the target.
+
+R has had partial support for this workflow. \CRANpkg{bridgr}
+implements bridge equations within the tidyverse ecosystem.
+\CRANpkg{midasr} covers the related MIDAS family of mixed-frequency
+models. \CRANpkg{bigtime} fits large-scale time-series models
+including sparse VARs at scale. None of these covers the full
+evaluation pipeline that a nowcasting analyst needs:
+pseudo-real-time backtesting with expanding or rolling windows, and
+pairwise Diebold-Mariano testing with the Harvey-Leybourne-Newbold
+finite-sample correction for small samples. \CRANpkg{nowcast} fills
+that gap.
+
+\section{Background}\label{background}
+
+\textbf{The mixed-frequency problem.} A quarterly target (GDP) must be
+aligned with monthly indicators. The standard choice, following
+\citet{mariano2003new}, is to aggregate monthly indicators to a quarterly
+frequency by averaging within the target quarter, which is the
+bridge-equation formulation, or to treat the low-frequency variable
+as a linear combination of latent high-frequency values, which is
+the MIDAS and dynamic-factor approach.
+
+\textbf{Bridge equations.} A bridge equation regresses the low-frequency
+target on the quarterly averages of monthly indicators
+\citep{baffigi2004bridge}. Optionally an autoregressive term in the
+target's own lags accounts for persistence not captured by the
+indicators. Bridge equations are simpler than MIDAS (which specifies
+a high-frequency weighting function) and dynamic factor models
+(which specify a latent state-space representation), but they remain
+the workhorse at central banks because their inputs (the monthly
+indicators) are the observable quantities that release-date
+press-releases report. \citet{schumacher2016comparison} compares bridge to
+MIDAS on a common dataset and finds comparable out-of-sample
+accuracy with bridge's simpler specification; \citet{clements2008macroeconomic}
+reach a similar conclusion for US GDP. \citet{foroni2013survey} provide a
+survey of mixed-frequency econometrics covering both approaches.
+
+\textbf{The ragged edge.} Different indicators have different publication
+lags. On any given calendar date, retail sales may be published
+through month \(t-1\), industrial production through \(t-2\), employment
+through \(t-1\), and consumer sentiment through \(t\) flash estimate.
+The resulting data matrix has a jagged right edge; a nowcasting
+model must handle this. \citet{wallis1986forecasting} formalised the
+ragged-edge problem in the context of mixed-frequency econometrics,
+and all modern nowcasting implementations address it explicitly.
+
+\textbf{Real-time evaluation.} In-sample fit is a weak guide to nowcast
+quality because it ignores both the ragged-edge publication pattern
+and out-of-sample instability. The canonical alternative is
+pseudo-real-time evaluation \citep{stark2002database}: for each target
+date, estimate the model on data available at that date only, make
+a nowcast, compare to the eventual realisation. An expanding window
+re-estimates at each step on all prior data; a rolling window fixes
+the estimation sample length. \citet{giannone2008nowcasting} standardised
+this approach. \citet{aruoba2009real} construct a related continuous-time
+index of US business conditions that has become the canonical
+dynamic-factor comparator for any single-equation nowcast.
+\citet{bok2018macroeconomic} survey the modern nowcasting literature,
+including the New York Fed Nowcast (the institutional benchmark for
+US GDP nowcasting).
+
+\textbf{Comparing nowcasts.} The Diebold-Mariano test
+\citep{diebold1995comparing} compares loss differentials between two
+forecast series against the null of equal predictive accuracy.
+\citet{harvey1997testing} showed that the original test is over-sized in
+small samples and proposed a finite-sample correction; the
+HLN-corrected statistic is the version implemented by
+\code{nc\_dm\_test()}.
+
+\section{Package design}\label{package-design}
+
+\subsection{Architecture}\label{architecture}
+
+\CRANpkg{nowcast} is pure R with no compiled code. Runtime imports
+are \CRANpkg{cli}, \code{grDevices}, \code{graphics}, and
+\code{stats}. R 4.1.0 or later is required. The test suite
+contains over one hundred and fifty tests covering every exported
+function.
+
+\subsection{Uniform function interface}\label{uniform-function-interface}
+
+Every exported function is prefixed \code{nc\_}. Data functions
+(\code{nc\_align}, \code{nc\_ragged\_edge}, \code{nc\_aggregate},
+\code{nc\_transform}) accept or return data frames with a
+\code{date} column and one or more value columns. Modelling
+functions (\code{nc\_bridge}, \code{nc\_backtest},
+\code{nc\_evaluate}, \code{nc\_dm\_test}) accept formula syntax
+(\code{target \~{} ind1 + ind2}) and return S3 objects.
+
+\subsection{S3 classes and methods}\label{s3-classes-and-methods}
+
+Alignment produces an \code{nc\_dataset} object carrying the
+quarterly-aggregated data plus ragged-edge metadata. Modelling
+returns \code{nowcast\_result}, \code{nowcast\_backtest}, or
+\code{nowcast\_dm} objects, each with \code{print()},
+\code{summary()}, and where appropriate \code{plot()} methods.
+\code{predict()} on a fitted \code{nowcast\_result} scores new data
+without re-estimating.
+
+\subsection{Reproducibility}\label{reproducibility}
+
+Every numerical result is deterministic given the input. No random
+initialisation, no stochastic optimiser, no cached vintage state.
+The package ships no bundled data; all examples in this paper use US
+series obtained from the Federal Reserve Bank of St.~Louis Economic
+Data (FRED) service.
+
+\section{Alignment and the ragged edge}\label{alignment-and-the-ragged-edge}
+
+\code{nc\_align()} takes a quarterly target data frame and one or
+more monthly indicator data frames, aggregates each monthly series
+to quarterly frequency by averaging within the target quarter, and
+returns an \code{nc\_dataset} with the joined data plus diagnostic
+columns recording how many monthly observations contributed to each
+quarter. Partial quarters (where the monthly indicator has fewer
+than three months within the target) are flagged rather than
+silently dropped.
+
+\code{nc\_ragged\_edge()} summarises the right edge of the
+alignment: for each indicator, how far past the latest target
+observation is the indicator's own latest observation? Figure
+\ref{fig:ragged} shows the pattern for four US monthly indicators
+over the most recent twenty-four months.
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth,alt={A heatmap with four rows (retail sales, industrial production, nonfarm payrolls, consumer sentiment) and 24 columns (months). Blue tiles indicate months with published observations; grey tiles indicate months not yet released. The right edge is jagged: sentiment extends furthest, payrolls and retail sales end one month earlier, industrial production two months earlier. This illustrates the ragged-edge publication pattern.}]{figures/fig1_ragged_edge} 
+
+}
+
+\caption{Availability heatmap of four US monthly indicators over the last 24 months. Blue tiles mark months with published observations, grey tiles mark months where the series has not yet been released. The jagged right edge at the most recent dates is the problem \texttt{nc\_align()} solves: retail sales, industrial production, payrolls, and sentiment all have different publication lags.}\label{fig:ragged}
+\end{figure}
+
+\code{nc\_aggregate()} and \code{nc\_transform()} expose the
+aggregation and stationarity-transformation steps separately for
+users who need manual control: log-difference, first-difference,
+percent change, and year-over-year transforms are all supported.
+
+\section{Bridge equations}\label{bridge-equations}
+
+\code{nc\_bridge()} fits the bridge equation by ordinary least
+squares, with an optional autoregressive term in the target
+(\code{ar\_order = 1} by default). The return object carries the
+point nowcast, a standard error, a confidence interval at the
+user-specified level, and the underlying fitted \code{lm} model for
+users who want coefficients, fitted values, and diagnostics. The
+\code{newdata} argument allows nowcasting out of sample without
+re-fitting.
+
+Figure \ref{fig:backtest} shows a pseudo-real-time backtest of a
+bridge equation with four US monthly indicators (retail sales,
+industrial production, nonfarm payrolls, and consumer sentiment) as
+regressors, targeting US real GDP growth over 2012 to present. The
+nowcast tracks the target through two episodes of pronounced
+volatility: the 2020 pandemic contraction and the post-2022 recovery.
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth,alt={A time-series line chart from 2012 to the mid-2020s. A grey solid line shows realised quarterly US real GDP log-differences; a blue dashed line shows the one-step-ahead bridge-equation nowcast. Both series move together through the period, with the steepest downward spike in 2020 followed by a symmetric recovery. The nowcast closely tracks the realised series outside of the pandemic quarters.}]{figures/fig2_backtest} 
+
+}
+
+\caption{Pseudo-real-time bridge-equation nowcast of quarterly US real GDP growth, 2012 onwards. Grey solid line is the realised log-difference of real GDP from FRED series \texttt{GDPC1}. Blue dashed line is the one-step-ahead nowcast from \texttt{nc\_backtest()} with four monthly indicators aggregated to quarterly frequency. Nowcast RMSE over the evaluation window is 0.95 percentage points, MAE is 0.51, bias is 0.03.}\label{fig:backtest}
+\end{figure}
+
+Figure \ref{fig:coeffs} shows the estimated coefficients and
+confidence intervals for the four indicators in the full-sample
+bridge equation, interpreted as the response of quarterly GDP growth
+to a one-percentage-point increase in the quarterly average of each
+monthly indicator. Retail sales and industrial production have the
+expected positive sign and the tightest intervals; payrolls and
+sentiment contribute more modestly.
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth,alt={A horizontal dot-whisker plot showing four coefficient estimates for retail sales, industrial production, nonfarm payrolls, and consumer sentiment. Retail sales and industrial production have the largest positive point estimates and tightest confidence intervals. Payrolls and sentiment have smaller estimates with wider intervals that straddle zero. A vertical reference line at zero is shown.}]{figures/fig4_coefficients} 
+
+}
+
+\caption{Bridge-equation coefficients for four monthly indicators, full-sample fit. Points are ordinary-least-squares estimates; horizontal bars are 95 per cent confidence intervals. Vertical line at zero marks no effect. Retail sales and industrial production dominate; payrolls and sentiment contribute marginally in this specification.}\label{fig:coeffs}
+\end{figure}
+
+\section{Pseudo-real-time evaluation}\label{pseudo-real-time-evaluation}
+
+\code{nc\_backtest()} walks through the sample one target at a time.
+At each step it fits the bridge equation on data available through
+the previous quarter and makes a nowcast for the next. The
+\code{window} argument selects an expanding window (all prior data)
+or a rolling window of fixed length, following
+\citet{giannone2008nowcasting}. The \code{start} argument sets the first
+evaluation point; everything prior is used for initial estimation.
+
+Figure \ref{fig:window} compares expanding and rolling-window
+errors on the same US GDP target. The expanding window benefits
+from all available data and produces a marginally smaller RMSE; the
+rolling window (forty-quarter fixed length) is more responsive to
+structural change, at the cost of ignoring older observations.
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth,alt={A time-series line chart of nowcast errors over the evaluation window. A blue solid line is the expanding-window error; a red dashed line is the rolling-window error. Both trace near zero through most of the sample with a large positive spike around 2020. The rolling window returns toward zero more quickly after the spike than the expanding window.}]{figures/fig3_window} 
+
+}
+
+\caption{Nowcast error (nowcast minus realised) from expanding-window and rolling-window backtests of the same bridge-equation specification. Expanding window (blue, solid) uses all prior data at each step; rolling window (red, dashed) uses the preceding 40 quarters only. Both peak around the 2020 pandemic contraction; the rolling specification is more responsive afterwards.}\label{fig:window}
+\end{figure}
+
+\code{nc\_evaluate()} takes a realised series and a nowcast series
+and returns root-mean-squared error, mean absolute error, and bias.
+These are the standard metrics reported alongside any published
+nowcasting exercise.
+
+\section{Testing equal predictive accuracy}\label{testing-equal-predictive-accuracy}
+
+\code{nc\_dm\_test()} implements the Diebold-Mariano test for equal
+predictive accuracy between two forecast series on the same target.
+It accepts two loss vectors (\code{e1}, \code{e2}) and returns the
+test statistic, \(p\)-value, and interpretation. The \code{h} argument
+sets the forecast horizon (one for a same-quarter nowcast). The
+\code{loss} argument selects squared or absolute loss.
+\citet{harvey1997testing} showed that the asymptotic test is over-sized in
+samples smaller than about fifty; the HLN correction applied here
+scales the statistic by a factor depending on sample size and
+horizon to restore approximate nominal coverage.
+
+Figure \ref{fig:dm} compares two specifications of the bridge
+equation on the same US GDP target: with and without the AR(1) term.
+The RMSEs are nearly identical and the DM test fails to reject the
+null of equal predictive accuracy. The AR term is neither helpful
+nor harmful in this example, consistent with the modest persistence
+of quarterly log-differenced GDP growth.
+
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth,alt={A two-bar chart comparing the RMSE of two bridge-equation specifications on US GDP. The left bar is the specification with an AR(1) term; the right bar is the specification without. Both bars are nearly identical in height, near 0.95 percentage points. An annotation box reports the HLN-corrected DM statistic and a p-value above conventional significance thresholds.}]{figures/fig5_dm} 
+
+}
+
+\caption{Diebold-Mariano comparison of two bridge-equation specifications on US GDP. Bars show backtest RMSE. Left: bridge with an AR(1) term. Right: bridge without. The HLN-corrected Diebold-Mariano test statistic and p-value are reported in the annotation box. The test fails to reject the null of equal predictive accuracy.}\label{fig:dm}
+\end{figure}
+
+\section{Replication}\label{replication}
+
+The canonical workflow is four lines.
+
+\begin{verbatim}
+aligned  <- nc_align(gdp, retail = retail_df, indpro = indpro_df)
+result   <- nc_bridge(target ~ retail + indpro, data = aligned)
+backtest <- nc_backtest(target ~ retail + indpro, data = aligned, start = 40)
+backtest$metrics
+\end{verbatim}
+
+Line one aligns the quarterly target with the monthly indicators,
+averaging each indicator within its target quarter. Line two fits
+the bridge equation. Line three walks a pseudo-real-time expanding
+window through the sample. Line four pulls out the RMSE, MAE, and
+bias.
+
+Table \ref{tab:metrics} compares three bridge-equation
+specifications against a naive AR(1) benchmark that uses only the
+target's own lag. The full four-indicator bridge delivers an RMSE
+of 0.95 percentage points, roughly 46 per cent below the naive
+benchmark's 1.75. Dropping the AR term adds about three per cent to
+RMSE. Dropping all indicators except retail sales and industrial
+production nearly doubles the RMSE back to the naive-benchmark
+level, confirming that the payrolls and sentiment series carry
+meaningful marginal signal. The pairwise Diebold-Mariano test
+between the full bridge and the naive benchmark returns \(p = 0.17\),
+indicating that the sample is not quite large enough to reject
+equal accuracy at conventional levels, even though the point
+estimate strongly favours the bridge.
+
+\begin{table}
+
+\caption{\label{tab:metrics}Backtest metrics for three bridge-equation specifications on US real GDP growth. Expanding window, first evaluation at quarter forty, 2012-present evaluation sample. Adding the AR(1) term marginally reduces RMSE; dropping two of the four indicators modestly widens it.}
+\centering
+\begin{tabular}[t]{lrrr}
+\toprule
+Specification & RMSE & MAE & Bias\\
+\midrule
+Naive AR(1) on target only (benchmark) & 1.751 & 0.734 & -0.148\\
+Bridge + AR(1), all four indicators & 0.950 & 0.509 & 0.025\\
+Bridge no AR, all four indicators & 0.974 & 0.501 & 0.081\\
+Bridge + AR(1), retail + INDPRO only & 1.827 & 0.743 & -0.201\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{A case study of the 2020 pandemic quarter by quarter}\label{a-case-study-of-the-2020-pandemic-quarter-by-quarter}
+
+The expanding-window backtest provides a natural narrative window
+for the 2020 pandemic shock, the largest peacetime real-GDP
+contraction in US history. Evaluated quarter by quarter, the bridge
+nowcast returned:
+
+\begin{itemize}
+\tightlist
+\item
+  2020 Q1: nowcast \(-1.4\) per cent (log-difference), realised
+  \(-1.3\) per cent. The four monthly indicators captured the
+  front-end hit nearly exactly.
+\item
+  2020 Q2: nowcast \(-3.2\) per cent, realised \(-8.2\) per cent (a
+  \(-31\) per cent annualised print). The nowcast caught the
+  direction but missed the magnitude by five percentage points.
+  Retail sales, industrial production, and payrolls all fell
+  sharply, but the simultaneous collapse in services consumption,
+  which is not directly captured by any of the four indicators in
+  this specification, was unprecedented.
+\item
+  2020 Q3: nowcast \(+4.7\) per cent, realised \(+7.5\) per cent. Again
+  the direction was captured but the magnitude understated, for the
+  same reason in reverse: the services rebound exceeded what any
+  linear combination of the four monthly series would have
+  predicted.
+\item
+  2020 Q4: nowcast \(-1.6\) per cent, realised \(+1.1\) per cent. By
+  the end of the year the model had absorbed the new-regime signal
+  from the 2020 Q3 rebound and began over-correcting.
+\end{itemize}
+
+The episode illustrates both the appeal and the limit of
+bridge-equation nowcasts. The model is easy to estimate, reports
+sensible uncertainty, and captures direction reliably; it cannot
+capture shocks that move the high-frequency target through a
+channel not in the indicator set. This is the common pattern: add
+one or two services or spending indicators (personal consumption
+expenditure on services, for example) and the magnitude misses
+narrow substantially.
+
+\section{Limitations}\label{limitations}
+
+Five limitations apply.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \CRANpkg{nowcast} implements bridge equations only. Mixed-data
+  sampling (MIDAS) regressions of the \citet{ghysels2004midas} family, and
+  dynamic factor models in the \citet{giannone2008nowcasting} tradition,
+  are out of scope; users needing those should look to
+  \CRANpkg{midasr} and \CRANpkg{bigtime} respectively.
+\item
+  The package does not fetch data. Users supply a data frame of
+  dates and values from FRED, Eurostat, ONS, or any other source.
+  \CRANpkg{fredr} is a natural partner for US data;
+  \CRANpkg{readecb} for Euro-area data; \CRANpkg{ons} for UK.
+\item
+  Real-time data revisions are not tracked. The package operates
+  on final-vintage data by default; true real-time nowcast
+  evaluation requires vintage-aware data frames which the user must
+  construct (for US data, ALFRED at FRED supplies them).
+\item
+  Flash-estimate indicators with intra-month release dates require
+  manual alignment. The monthly aggregation in \code{nc\_align()}
+  assumes one observation per month.
+\item
+  The AR specification in \code{nc\_bridge()} is restricted to
+  non-negative integer orders of the target's own lags.
+  Autoregressive-moving-average or fractional specifications are
+  out of scope.
+\end{enumerate}
+
+\section{Appendix of formula definitions}\label{appendix-of-formula-definitions}
+
+\textbf{Bridge equation with AR(\(p\)) term.} Let \(y_t\) denote the
+quarterly target and \(x_{j,t}^{\mathrm{agg}}\) the quarterly
+aggregation of monthly indicator \(j\). The bridge specification is
+\[y_t = \alpha + \sum_{j=1}^{J} \beta_j x_{j,t}^{\mathrm{agg}}
+  + \sum_{k=1}^{p} \rho_k y_{t-k} + \varepsilon_t,\]
+estimated by ordinary least squares. Nowcasts substitute the
+contemporaneous quarterly aggregate of each indicator; if the
+indicator's final month is missing, the aggregate uses the
+partial-quarter average, flagged in the package's ragged-edge
+metadata.
+
+\textbf{Mincer-Zarnowitz regression.} For realised \(y_t\) and forecast
+\(\hat{y}_t\), estimate \(y_t = \alpha + \beta \hat{y}_t + \varepsilon_t\)
+and test \(H_0: (\alpha, \beta) = (0, 1)\). Rejection indicates bias
+(\(\alpha \neq 0\)) or systematic under- or over-reaction
+(\(\beta \neq 1\)).
+
+\textbf{Diebold-Mariano test with HLN correction.} Let
+\(d_t = L(e_{1,t}) - L(e_{2,t})\) be the loss differential between
+two forecast errors under a chosen loss function \(L\). The
+Diebold-Mariano statistic is \(\mathrm{DM} = \bar{d} / \sqrt{V_n}\),
+where \(V_n\) is a heteroscedasticity-and-autocorrelation-consistent
+variance estimate. \citet{harvey1997testing} show this is over-sized in
+small samples and propose the correction
+\[\mathrm{DM}^* = \mathrm{DM} \cdot
+  \sqrt{\frac{n + 1 - 2h + h(h-1)/n}{n}},\]
+with \(p\)-values evaluated against a \(t_{n-1}\) distribution. This is
+the statistic \code{nc\_dm\_test()} returns.
+
+\section{Conclusion}\label{conclusion}
+
+Nowcasting is a core activity at every central bank's research
+department and a frequent task in sovereign fiscal offices and
+macro-hedge funds, and it had been only partially served on CRAN.
+\CRANpkg{nowcast} closes the gap with a complete bridge-equation
+workflow: mixed-frequency alignment, estimation with optional
+autoregressive terms, pseudo-real-time backtesting over expanding or
+rolling windows, and HLN-corrected Diebold-Mariano testing.
+Every function operates on plain data frames, has no hard
+dependency on data-vendor packages, and returns S3 objects with
+print, summary, and plot methods. Planned additions include a
+mixed-data-sampling interface, dynamic-factor estimation for large
+indicator panels, real-time vintage support, and flash-estimate
+handling.
+
+\section*{Acknowledgements}\label{acknowledgements}
+\addcontentsline{toc}{section}{Acknowledgements}
+
+The Federal Reserve Bank of St.~Louis publishes the FRED service
+used for every example in this paper. The CRAN team maintain the
+infrastructure that makes R package distribution possible.
+
+\section*{References}
+\bibliography{RJreferences.bib}
+
+\address{%
+Charles Coverdale\\
+Independent\\%
+London, United Kingdom\\
+%
+\url{https://github.com/charlescoverdale/nowcast}\\%
+%
+\href{mailto:charles.f.coverdale@gmail.com}{\nolinkurl{charles.f.coverdale@gmail.com}}%
+}
