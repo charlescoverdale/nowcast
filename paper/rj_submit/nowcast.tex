@@ -152,9 +152,9 @@ observation is the indicator's own latest observation? Figure
 \ref{fig:ragged} shows the pattern for four US monthly indicators
 over the most recent twenty-four months.
 
-\begin{figure}
+\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth,alt={A heatmap with four rows (retail sales, industrial production, nonfarm payrolls, consumer sentiment) and 24 columns (months). Blue tiles indicate months with published observations; grey tiles indicate months not yet released. The right edge is jagged: sentiment extends furthest, payrolls and retail sales end one month earlier, industrial production two months earlier. This illustrates the ragged-edge publication pattern.}]{figures/fig1_ragged_edge} 
+{\centering \includegraphics[width=1\linewidth,alt={A heatmap with four rows (retail sales, industrial production, nonfarm payrolls, consumer sentiment) and 24 columns (months). Blue tiles indicate months with published observations; grey tiles indicate months not yet released. The right edge is jagged: sentiment extends furthest, payrolls and retail sales end one month earlier, industrial production two months earlier. This illustrates the ragged-edge publication pattern.},]{figures/fig1_ragged_edge} 
 
 }
 
@@ -184,9 +184,9 @@ regressors, targeting US real GDP growth over 2012 to present. The
 nowcast tracks the target through two episodes of pronounced
 volatility: the 2020 pandemic contraction and the post-2022 recovery.
 
-\begin{figure}
+\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth,alt={A time-series line chart from 2012 to the mid-2020s. A grey solid line shows realised quarterly US real GDP log-differences; a blue dashed line shows the one-step-ahead bridge-equation nowcast. Both series move together through the period, with the steepest downward spike in 2020 followed by a symmetric recovery. The nowcast closely tracks the realised series outside of the pandemic quarters.}]{figures/fig2_backtest} 
+{\centering \includegraphics[width=1\linewidth,alt={A time-series line chart from 2012 to the mid-2020s. A grey solid line shows realised quarterly US real GDP log-differences; a blue dashed line shows the one-step-ahead bridge-equation nowcast. Both series move together through the period, with the steepest downward spike in 2020 followed by a symmetric recovery. The nowcast closely tracks the realised series outside of the pandemic quarters.},]{figures/fig2_backtest} 
 
 }
 
@@ -201,9 +201,9 @@ monthly indicator. Retail sales and industrial production have the
 expected positive sign and the tightest intervals; payrolls and
 sentiment contribute more modestly.
 
-\begin{figure}
+\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth,alt={A horizontal dot-whisker plot showing four coefficient estimates for retail sales, industrial production, nonfarm payrolls, and consumer sentiment. Retail sales and industrial production have the largest positive point estimates and tightest confidence intervals. Payrolls and sentiment have smaller estimates with wider intervals that straddle zero. A vertical reference line at zero is shown.}]{figures/fig4_coefficients} 
+{\centering \includegraphics[width=1\linewidth,alt={A horizontal dot-whisker plot showing four coefficient estimates for retail sales, industrial production, nonfarm payrolls, and consumer sentiment. Retail sales and industrial production have the largest positive point estimates and tightest confidence intervals. Payrolls and sentiment have smaller estimates with wider intervals that straddle zero. A vertical reference line at zero is shown.},]{figures/fig4_coefficients} 
 
 }
 
@@ -226,9 +226,9 @@ from all available data and produces a marginally smaller RMSE; the
 rolling window (forty-quarter fixed length) is more responsive to
 structural change, at the cost of ignoring older observations.
 
-\begin{figure}
+\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth,alt={A time-series line chart of nowcast errors over the evaluation window. A blue solid line is the expanding-window error; a red dashed line is the rolling-window error. Both trace near zero through most of the sample with a large positive spike around 2020. The rolling window returns toward zero more quickly after the spike than the expanding window.}]{figures/fig3_window} 
+{\centering \includegraphics[width=1\linewidth,alt={A time-series line chart of nowcast errors over the evaluation window. A blue solid line is the expanding-window error; a red dashed line is the rolling-window error. Both trace near zero through most of the sample with a large positive spike around 2020. The rolling window returns toward zero more quickly after the spike than the expanding window.},]{figures/fig3_window} 
 
 }
 
@@ -260,9 +260,9 @@ null of equal predictive accuracy. The AR term is neither helpful
 nor harmful in this example, consistent with the modest persistence
 of quarterly log-differenced GDP growth.
 
-\begin{figure}
+\begin{figure}[H]
 
-{\centering \includegraphics[width=1\linewidth,alt={A two-bar chart comparing the RMSE of two bridge-equation specifications on US GDP. The left bar is the specification with an AR(1) term; the right bar is the specification without. Both bars are nearly identical in height, near 0.95 percentage points. An annotation box reports the HLN-corrected DM statistic and a p-value above conventional significance thresholds.}]{figures/fig5_dm} 
+{\centering \includegraphics[width=1\linewidth,alt={A two-bar chart comparing the RMSE of two bridge-equation specifications on US GDP. The left bar is the specification with an AR(1) term; the right bar is the specification without. Both bars are nearly identical in height, near 0.95 percentage points. An annotation box reports the HLN-corrected DM statistic and a p-value above conventional significance thresholds.},]{figures/fig5_dm} 
 
 }
 
@@ -446,7 +446,6 @@ The Federal Reserve Bank of St.~Louis publishes the FRED service
 used for every example in this paper. The CRAN team maintain the
 infrastructure that makes R package distribution possible.
 
-\section*{References}
 \bibliography{RJreferences.bib}
 
 \address{%
