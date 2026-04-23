@@ -327,7 +327,7 @@ estimate strongly favours the bridge.
 ## Case study: the 2020 pandemic quarter-by-quarter
 
 The expanding-window backtest provides a natural narrative window
-for the 2020 pandemic shock, the largest peacetime peacetime
+for the 2020 pandemic shock, the largest peacetime
 real-GDP contraction in US history. Evaluated quarter by quarter,
 the bridge nowcast returned:
 
