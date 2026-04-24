@@ -39,3 +39,15 @@ reference:
   - title: "Package"
     contents:
       - nowcast-package
+
+  - title: "S3 Methods"
+    desc: "Plot, print, predict, and summary methods"
+    contents:
+      - plot.nowcast_backtest
+      - plot.nowcast_result
+      - predict.nowcast_result
+      - print.nc_dataset
+      - print.nowcast_backtest
+      - print.nowcast_result
+      - summary.nowcast_backtest
+      - summary.nowcast_result
