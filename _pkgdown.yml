@@ -35,3 +35,7 @@ reference:
     contents:
       - nc_available
 
+
+  - title: "Package"
+    contents:
+      - nowcast-package
