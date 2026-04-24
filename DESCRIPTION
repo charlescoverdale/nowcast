@@ -15,7 +15,7 @@ Description: Provides bridge equations with optional autoregressive terms for
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
-URL: https://github.com/charlescoverdale/nowcast
+URL: https://charlescoverdale.github.io/nowcast/, https://github.com/charlescoverdale/nowcast
 BugReports: https://github.com/charlescoverdale/nowcast/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
