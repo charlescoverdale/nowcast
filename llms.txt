@@ -1,0 +1,383 @@
+# nowcast
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/nowcast)](https://CRAN.R-project.org/package=nowcast)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/nowcast)](https://CRAN.R-project.org/package=nowcast)
+[![Total
+Downloads](https://cranlogs.r-pkg.org/badges/grand-total/nowcast)](https://CRAN.R-project.org/package=nowcast)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+**nowcast** is an R package for economic nowcasting. It estimates the
+current state of a macroeconomic variable (like GDP) before the official
+data are released, using higher-frequency indicators that are available
+sooner.
+
+## Installation
+
+``` r
+install.packages("nowcast")
+
+# Or install the development version from GitHub
+# install.packages("devtools")
+devtools::install_github("charlescoverdale/nowcast")
+```
+
+``` r
+library(nowcast)
+
+# Nowcast GDP from monthly indicators
+aligned <- nc_align(gdp, retail = retail, ip = ip)
+result  <- nc_bridge(target ~ retail + ip, data = aligned)
+result$nowcast
+```
+
+------------------------------------------------------------------------
+
+## Why nowcasting?
+
+GDP is published with a lag, typically 6 to 8 weeks after the quarter
+ends. But monthly indicators like retail sales, industrial production,
+and labour market data arrive much sooner. Nowcasting uses these
+higher-frequency series to estimate GDP growth in real time, before the
+official number appears.
+
+The core challenge is the **ragged edge**: different indicators have
+different publication lags. Retail sales might be available through
+February, industrial production only through January, and employment
+through December, all at the same calendar date. A nowcasting model must
+handle this jagged pattern of data availability.
+
+**nowcast** aligns mixed-frequency data, estimates bridge equations (the
+standard model at most central banks), and evaluates nowcast performance
+through pseudo-real-time backtesting.
+
+------------------------------------------------------------------------
+
+## How does nowcast compare to other packages?
+
+| Feature                   | **nowcast**         | **bridgr**     | **midasr**    | **dfms** |
+|---------------------------|---------------------|----------------|---------------|----------|
+| Bridge equations          | Yes (with AR terms) | Yes            | No            | No       |
+| Mixed-frequency alignment | Yes                 | No             | No            | Yes      |
+| Ragged-edge diagnostics   | Yes                 | No             | No            | Yes      |
+| Pseudo-real-time backtest | Yes                 | No             | Yes (rolling) | No       |
+| Diebold-Mariano test      | Yes (HLN corrected) | No             | No            | No       |
+| MIDAS                     | No                  | No             | Yes           | No       |
+| Dynamic factor models     | No                  | No             | No            | Yes      |
+| Dependencies              | 1 (cli)             | 8+ (tidyverse) | 6+            | 3        |
+
+**nowcast** provides bridge equations with integrated evaluation in a
+lightweight package. `bridgr` does bridge equations within the tidyverse
+ecosystem. `midasr` is a mature MIDAS implementation. `dfms` is a
+high-quality DFM package with a C++ backend. **nowcast** focuses on the
+evaluation side: pseudo-real-time backtesting and the HLN-corrected
+Diebold-Mariano test let you compare nowcasting specifications on the
+same data.
+
+------------------------------------------------------------------------
+
+## Quick start
+
+### 1. Align mixed-frequency data
+
+``` r
+library(nowcast)
+
+# Quarterly target (e.g. GDP growth)
+gdp <- data.frame(
+  date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 40),
+  value = rnorm(40, 0.5, 0.3)
+)
+
+# Monthly indicators (e.g. retail sales, industrial production)
+retail <- data.frame(
+  date = seq(as.Date("2015-01-01"), by = "month", length.out = 120),
+  value = rnorm(120, 0.4, 0.5)
+)
+ip <- data.frame(
+  date = seq(as.Date("2015-01-01"), by = "month", length.out = 118),  # ragged edge
+  value = rnorm(118, 0.3, 0.4)
+)
+
+# Align: monthly indicators are averaged to quarterly frequency
+aligned <- nc_align(gdp, retail = retail, ip = ip)
+aligned
+#> ── Aligned Nowcasting Dataset ──
+#> • Target: target (quarterly)
+#> • Indicators: 2 (retail, ip)
+#> • Periods: 40 (2015-01-01 to 2024-10-01)
+
+# See the ragged edge
+nc_ragged_edge(aligned)
+```
+
+### 2. Estimate a bridge equation
+
+``` r
+# Bridge equation with AR(1) term (default)
+result <- nc_bridge(target ~ retail + ip, data = aligned)
+result
+#> ── Nowcast (Bridge Equation) ──
+#> • Nowcast: 0.4832
+#> • SE: 0.3156
+#> • 95% CI: [-0.1467, 1.1131]
+#> • Target period: 2024-10-01
+#> • R-squared: 0.1523 | Obs: 38
+
+# Full summary with coefficients
+summary(result)
+
+# Static bridge equation (no AR terms)
+nc_bridge(target ~ retail + ip, data = aligned, ar_order = 0)
+```
+
+### 3. Evaluate with pseudo-real-time backtesting
+
+``` r
+# Expanding-window backtest: train on 1:i-1, nowcast i
+bt <- nc_backtest(target ~ retail + ip, data = aligned, start = 20)
+bt
+#> ── Nowcast Backtest (bridge, expanding) ──
+#> • Evaluations: 18
+#> • RMSE: 0.2847
+#> • MAE: 0.2312
+#> • Bias: 0.0043
+
+# Compare two specifications
+bt_static <- nc_backtest(target ~ retail + ip, data = aligned,
+                          start = 20, ar_order = 0)
+nc_dm_test(bt$results$error, bt_static$results$error)
+#> Diebold-Mariano (HLN): p = 0.42
+
+# Plot actual vs nowcast
+plot(bt)
+```
+
+------------------------------------------------------------------------
+
+## Functions
+
+| Category   | Function                                                                                            | Description                                           |
+|------------|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------|
+| Data       | [`nc_align()`](https://charlescoverdale.github.io/nowcast/reference/nc_align.md)                    | Align mixed-frequency target and indicators           |
+| Data       | [`nc_ragged_edge()`](https://charlescoverdale.github.io/nowcast/reference/nc_ragged_edge.md)        | Summarise data availability across series             |
+| Data       | [`nc_aggregate()`](https://charlescoverdale.github.io/nowcast/reference/nc_aggregate.md)            | Temporal aggregation (monthly to quarterly/annual)    |
+| Data       | [`nc_transform()`](https://charlescoverdale.github.io/nowcast/reference/nc_transform.md)            | Stationarity transforms (diff, log_diff, standardize) |
+| Estimation | [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md)                  | Bridge equation with optional AR terms                |
+| Evaluation | [`nc_evaluate()`](https://charlescoverdale.github.io/nowcast/reference/nc_evaluate.md)              | RMSE, MAE, and bias                                   |
+| Evaluation | [`nc_dm_test()`](https://charlescoverdale.github.io/nowcast/reference/nc_dm_test.md)                | Diebold-Mariano test (HLN corrected)                  |
+| Evaluation | [`nc_backtest()`](https://charlescoverdale.github.io/nowcast/reference/nc_backtest.md)              | Pseudo-real-time expanding/rolling window evaluation  |
+| Utility    | [`nc_available()`](https://charlescoverdale.github.io/nowcast/reference/nc_available.md)            | List available methods                                |
+| Utility    | [`nc_compute()`](https://charlescoverdale.github.io/nowcast/reference/nc_compute.md)                | Generic dispatcher by method name                     |
+| S3         | [`print()`](https://rdrr.io/r/base/print.html) / [`summary()`](https://rdrr.io/r/base/summary.html) | cli-formatted output for all objects                  |
+| S3         | [`plot()`](https://rdrr.io/r/graphics/plot.default.html)                                            | Actual vs fitted/nowcast plots                        |
+| S3         | [`predict()`](https://rdrr.io/r/stats/predict.html)                                                 | Predict from fitted nowcast model                     |
+
+------------------------------------------------------------------------
+
+## Methodology
+
+### Bridge equations
+
+Bridge equations are the most widely used nowcasting method. They were
+developed at the ECB (Runstler and Sedillot 2003, Baffigi et al. 2004)
+and remain the standard model at most central banks and treasuries. The
+idea is simple: aggregate monthly indicators to the quarterly frequency,
+then regress the quarterly target on those aggregated indicators.
+
+Following standard practice,
+[`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md)
+includes an autoregressive term by default (`ar_order = 1`) to capture
+GDP momentum. The model is:
+
+$$y_{t} = \alpha + \phi y_{t - 1} + \sum\limits_{i}\beta_{i}{\bar{x}}_{i,t} + \varepsilon_{t}$$
+
+where ${\bar{x}}_{i,t}$ is the within-quarter mean of monthly indicator
+$i$.
+
+Prediction intervals come from
+`predict.lm(..., interval = "prediction")`, which accounts for both
+residual variance and coefficient estimation uncertainty, evaluated
+against the *t* distribution.
+
+### Diebold-Mariano test
+
+The
+[`nc_dm_test()`](https://charlescoverdale.github.io/nowcast/reference/nc_dm_test.md)
+function implements the Harvey, Leybourne, and Newbold (1997)
+modification of the Diebold-Mariano (1995) test. The HLN correction
+applies a finite-sample scaling factor and uses the *t*\_{n-1}
+distribution rather than the standard normal. This matters at the sample
+sizes typical in nowcasting (20-60 quarters). The Bartlett (triangular)
+kernel is used for HAC variance estimation, which guarantees
+non-negative variance.
+
+### Backtesting
+
+[`nc_backtest()`](https://charlescoverdale.github.io/nowcast/reference/nc_backtest.md)
+performs pseudo-real-time evaluation on final revised data. At each
+step, the model sees only past data (expanding or rolling window) and
+produces a nowcast for the next period. This simulates real-time
+performance but does not account for data revisions. True real-time
+evaluation requires vintage data (e.g. from FRED’s ALFRED database).
+
+------------------------------------------------------------------------
+
+## Design decisions
+
+- **`nc_` prefix.** Short, distinctive, easy to type and autocomplete.
+- **AR terms by default.** GDP growth is serially correlated. Following
+  ECB/BoE practice,
+  [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md)
+  includes an AR(1) term by default. Set `ar_order = 0` for a static
+  specification.
+- **Prediction intervals.** Uses the full prediction standard error
+  (estimation uncertainty + residual variance) and *t* quantiles, not
+  just residual standard deviation with normal quantiles.
+- **HLN-corrected DM test.** The original Diebold-Mariano test
+  over-rejects in small samples. The HLN correction is now standard
+  (used by `forecast::dm.test` in R and `statsmodels` in Python).
+- **No heavy dependencies.** Depends only on `cli` and `stats`. No
+  tidyverse, no Rcpp, no external system libraries.
+- **Pure computation.** Does not download data. Pair with
+  [`ons`](https://github.com/charlescoverdale/ons),
+  [`boe`](https://github.com/charlescoverdale/boe),
+  [`fred`](https://github.com/charlescoverdale/fred), or any other data
+  source.
+
+------------------------------------------------------------------------
+
+## Limitations
+
+- **Bridge equations only.** MIDAS regressions and dynamic factor models
+  are not implemented. For MIDAS, see `midasr`. For DFMs, see `dfms`.
+- **Pseudo-real-time evaluation only.** The backtest uses final revised
+  data, not vintage data. Data revisions can be material (Banbura et
+  al. 2013, ECB WP 1564). True real-time evaluation requires vintage
+  data that the user must supply.
+- **No automatic indicator forecasting at the ragged edge.** When only
+  1-2 months of the current quarter are available,
+  [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md)
+  uses whatever the user provides in `newdata`. It does not forecast the
+  missing months with AR/ARIMA. Central bank implementations typically
+  do this, but it adds model-within-model complexity.
+- **OLS standard errors.** The reported coefficient standard errors
+  assume homoskedastic, serially uncorrelated errors. A Durbin-Watson
+  statistic is reported in `result$details$dw_stat` to help diagnose
+  autocorrelation. For HAC-robust inference, extract the fitted model
+  via `result$model` and use the `sandwich` package.
+
+------------------------------------------------------------------------
+
+## References
+
+- Baffigi, A., Golinelli, R. and Parigi, G. (2004). Bridge models to
+  forecast the euro area GDP. *International Journal of Forecasting*,
+  20(3), 447–460.
+- Diebold, F.X. and Mariano, R.S. (1995). Comparing predictive accuracy.
+  *Journal of Business & Economic Statistics*, 13(3), 253–263.
+- Harvey, D., Leybourne, S. and Newbold, P. (1997). Testing the equality
+  of prediction mean squared errors. *International Journal of
+  Forecasting*, 13(2), 281–291.
+- Runstler, G. and Sedillot, F. (2003). Short-term estimates of euro
+  area real GDP by means of monthly data. *ECB Working Paper No. 276*.
+
+------------------------------------------------------------------------
+
+## Related packages
+
+| Package                                                        | What it covers                                                             |
+|----------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`ons`](https://github.com/charlescoverdale/ons)               | UK Office for National Statistics data (high and low frequency indicators) |
+| [`boe`](https://github.com/charlescoverdale/boe)               | Bank of England data (Bank Rate, financial conditions)                     |
+| [`fred`](https://github.com/charlescoverdale/fred)             | Federal Reserve Economic Data (US monthly and quarterly indicators)        |
+| [`readecb`](https://github.com/charlescoverdale/readecb)       | European Central Bank data (HICP, monetary aggregates)                     |
+| [`readoecd`](https://github.com/charlescoverdale/readoecd)     | OECD cross-country macro indicators                                        |
+| [`predictset`](https://github.com/charlescoverdale/predictset) | Conformal prediction intervals around nowcast point estimates              |
+| [`inflateR`](https://github.com/charlescoverdale/inflateR)     | Inflation adjustment for nominal series                                    |
+
+------------------------------------------------------------------------
+
+## Issues
+
+Found a bug or have a feature request? Please [open an
+issue](https://github.com/charlescoverdale/nowcast/issues) on GitHub.
+
+nowcasting, GDP, macroeconomics, bridge equations, mixed frequency,
+economic forecasting, real-time data, ragged edge, time series, R
+package
+
+# Package index
+
+## Data Preparation
+
+Align and aggregate mixed-frequency series
+
+- [`nc_align()`](https://charlescoverdale.github.io/nowcast/reference/nc_align.md)
+  : Align Mixed-Frequency Time Series
+- [`nc_aggregate()`](https://charlescoverdale.github.io/nowcast/reference/nc_aggregate.md)
+  : Temporal Aggregation
+- [`nc_ragged_edge()`](https://charlescoverdale.github.io/nowcast/reference/nc_ragged_edge.md)
+  : Summarise Ragged-Edge Data Availability
+- [`nc_transform()`](https://charlescoverdale.github.io/nowcast/reference/nc_transform.md)
+  : Stationarity Transformations
+
+## Modelling
+
+Bridge equations and nowcasts
+
+- [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md)
+  : Bridge Equation Nowcast
+- [`nc_compute()`](https://charlescoverdale.github.io/nowcast/reference/nc_compute.md)
+  : Compute a Nowcast by Method Name
+
+## Evaluation
+
+Backtest and assess forecast accuracy
+
+- [`nc_evaluate()`](https://charlescoverdale.github.io/nowcast/reference/nc_evaluate.md)
+  : Evaluate Nowcast Accuracy
+- [`nc_backtest()`](https://charlescoverdale.github.io/nowcast/reference/nc_backtest.md)
+  : Pseudo-Real-Time Backtesting
+- [`nc_dm_test()`](https://charlescoverdale.github.io/nowcast/reference/nc_dm_test.md)
+  : Diebold-Mariano Test for Equal Predictive Accuracy
+
+## General
+
+Available series
+
+- [`nc_available()`](https://charlescoverdale.github.io/nowcast/reference/nc_available.md)
+  : List Available Nowcasting Methods
+
+## Package
+
+- [`nowcast`](https://charlescoverdale.github.io/nowcast/reference/nowcast-package.md)
+  [`nowcast-package`](https://charlescoverdale.github.io/nowcast/reference/nowcast-package.md)
+  : nowcast: Economic Nowcasting with Bridge Equations and Real-Time
+  Evaluation
+
+## S3 Methods
+
+Plot, print, predict, and summary methods
+
+- [`plot(`*`<nowcast_backtest>`*`)`](https://charlescoverdale.github.io/nowcast/reference/plot.nowcast_backtest.md)
+  : Plot Method for Backtest Results
+- [`plot(`*`<nowcast_result>`*`)`](https://charlescoverdale.github.io/nowcast/reference/plot.nowcast_result.md)
+  : Plot Method for Nowcast Results
+- [`predict(`*`<nowcast_result>`*`)`](https://charlescoverdale.github.io/nowcast/reference/predict.nowcast_result.md)
+  : Predict Method for Nowcast Results
+- [`print(`*`<nc_dataset>`*`)`](https://charlescoverdale.github.io/nowcast/reference/print.nc_dataset.md)
+  : Print Method for nc_dataset Objects
+- [`print(`*`<nowcast_backtest>`*`)`](https://charlescoverdale.github.io/nowcast/reference/print.nowcast_backtest.md)
+  : Print Method for Backtest Results
+- [`print(`*`<nowcast_result>`*`)`](https://charlescoverdale.github.io/nowcast/reference/print.nowcast_result.md)
+  : Print Method for Nowcast Results
+- [`summary(`*`<nowcast_backtest>`*`)`](https://charlescoverdale.github.io/nowcast/reference/summary.nowcast_backtest.md)
+  : Summary Method for Backtest Results
+- [`summary(`*`<nowcast_result>`*`)`](https://charlescoverdale.github.io/nowcast/reference/summary.nowcast_result.md)
+  : Summary Method for Nowcast Results
+
