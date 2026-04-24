@@ -1,0 +1,37 @@
+url: https://charlescoverdale.github.io/nowcast/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+  - title: "Data Preparation"
+    desc: "Align and aggregate mixed-frequency series"
+    contents:
+      - nc_align
+      - nc_aggregate
+      - nc_ragged_edge
+      - nc_transform
+
+  - title: "Modelling"
+    desc: "Bridge equations and nowcasts"
+    contents:
+      - nc_bridge
+      - nc_compute
+
+  - title: "Evaluation"
+    desc: "Backtest and assess forecast accuracy"
+    contents:
+      - nc_evaluate
+      - nc_backtest
+      - nc_dm_test
+
+  - title: "General"
+    desc: "Available series"
+    contents:
+      - nc_available
+

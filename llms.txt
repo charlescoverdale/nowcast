@@ -1,0 +1,25 @@
+# nowcast
+
+> Provides bridge equations with optional autoregressive terms for nowcasting low-frequency macroeconomic variables (e. Install with `install.packages("nowcast")`.
+
+Version: 0.1.0. License: MIT.
+
+## Functions
+
+- [`nc_aggregate()`](https://charlescoverdale.github.io/nowcast/reference/nc_aggregate.html): Temporal Aggregation
+- [`nc_align()`](https://charlescoverdale.github.io/nowcast/reference/nc_align.html): Align Mixed-Frequency Time Series
+- [`nc_available()`](https://charlescoverdale.github.io/nowcast/reference/nc_available.html): List Available Nowcasting Methods
+- [`nc_backtest()`](https://charlescoverdale.github.io/nowcast/reference/nc_backtest.html): Pseudo-Real-Time Backtesting
+- [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.html): Bridge Equation Nowcast
+- [`nc_compute()`](https://charlescoverdale.github.io/nowcast/reference/nc_compute.html): Compute a Nowcast by Method Name
+- [`nc_dm_test()`](https://charlescoverdale.github.io/nowcast/reference/nc_dm_test.html): Diebold-Mariano Test for Equal Predictive Accuracy
+- [`nc_evaluate()`](https://charlescoverdale.github.io/nowcast/reference/nc_evaluate.html): Evaluate Nowcast Accuracy
+- [`nc_ragged_edge()`](https://charlescoverdale.github.io/nowcast/reference/nc_ragged_edge.html): Summarise Ragged-Edge Data Availability
+- [`nc_transform()`](https://charlescoverdale.github.io/nowcast/reference/nc_transform.html): Stationarity Transformations
+
+## Documentation
+
+- [Full reference](https://charlescoverdale.github.io/nowcast/reference/)
+- [GitHub](https://github.com/charlescoverdale/nowcast)
+- [CRAN](https://CRAN.R-project.org/package=nowcast)
+
