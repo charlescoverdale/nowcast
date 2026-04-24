@@ -2,6 +2,8 @@
 
 > Provides bridge equations with optional autoregressive terms for nowcasting low-frequency macroeconomic variables (e. Install with `install.packages("nowcast")`.
 
+Full API reference (for agents): https://raw.githubusercontent.com/charlescoverdale/nowcast/main/llms-full.txt
+
 Version: 0.1.0. License: MIT.
 
 ## Functions

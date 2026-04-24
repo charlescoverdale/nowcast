@@ -1,0 +1,384 @@
+# nowcast — full API reference
+
+> Provides bridge equations with optional autoregressive terms for nowcasting low-frequency macroeconomic variables (e.
+
+- Version: 0.1.0
+- Install: `install.packages("nowcast")`
+- CRAN: https://CRAN.R-project.org/package=nowcast
+- GitHub: https://github.com/charlescoverdale/nowcast
+- Reference site: https://charlescoverdale.github.io/nowcast/
+
+This file is a self-contained reference for LLM agents: every exported
+function with its signature, arguments, return value, and example.
+
+---
+
+## `nc_aggregate()`
+
+**Temporal Aggregation**
+
+Aggregate a time series from a higher frequency to a lower frequency. For example, convert monthly data to quarterly by taking the mean, sum, or last observation.
+
+**Usage**
+
+```r
+nc_aggregate(data, to = c("quarterly", "annual"), fun = mean)
+```
+
+**Arguments**
+
+- `data` — A data frame with columns `date` (Date) and `value` (numeric).
+- `to` — Character. Target frequency: `"quarterly"` or `"annual"`.
+- `fun` — Function used for aggregation (default mean).
+
+**Returns**
+
+A data frame with columns `date` and `value` at the target frequency.
+
+**Example**
+
+```r
+monthly <- data.frame(
+  date = seq(as.Date("2020-01-01"), as.Date("2020-12-01"), by = "month"),
+  value = rnorm(12)
+)
+nc_aggregate(monthly, to = "quarterly")
+nc_aggregate(monthly, to = "annual", fun = sum)
+```
+
+---
+
+## `nc_align()`
+
+**Align Mixed-Frequency Time Series**
+
+Merges a quarterly target series with one or more higher-frequency indicator series into a single aligned dataset. Monthly indicators are aggregated to the quarterly frequency using the specified function (default: mean).
+
+**Usage**
+
+```r
+nc_align(target, ..., freq_ratio = 3L, agg_fun = mean)
+```
+
+**Arguments**
+
+- `target` — A data frame with columns `date` (Date) and `value` (numeric) containing the quarterly target variable (e.g. GDP growth).
+- `...` — One or more data frames, each with columns `date` and `value`. Names are used as column names in the output; if unnamed, generic names are assigned.
+- `freq_ratio` — Integer. The number of high-frequency observations per low-frequency period (default 3 for monthly-to-quarterly).
+- `agg_fun` — Function used to aggregate indicators to the target frequency (default mean).
+
+**Returns**
+
+An `nc_dataset` object — a list with components: dataA data frame with `date` (quarter start dates) plus columns for the target and each indicator. target_colName of the target column. indicator_colsCharacter vector of indicator column names. target_freqDetected frequency of the target series. indicator_freqDetected frequency of the indicator series. availabilityA data frame summarising data availability per series.
+
+**Example**
+
+```r
+# Create synthetic quarterly target and monthly indicators
+target <- data.frame(
+  date = as.Date(paste0(2020:2023, "-01-01")),
+  value = c(0.5, -0.3, 0.8, 0.2)
+)
+ind1 <- data.frame(
+  date = seq(as.Date("2020-01-01"), as.Date("2023-12-01"), by = "month"),
+  value = rnorm(48)
+)
+aligned <- nc_align(target, indicator1 = ind1)
+```
+
+---
+
+## `nc_available()`
+
+**List Available Nowcasting Methods**
+
+Returns a data frame describing the nowcasting methods implemented in the package.
+
+**Usage**
+
+```r
+nc_available()
+```
+
+**Returns**
+
+A data frame with columns `method`, `description`, and `available`.
+
+**Example**
+
+```r
+nc_available()
+```
+
+---
+
+## `nc_backtest()`
+
+**Pseudo-Real-Time Backtesting**
+
+Evaluate a nowcasting method by simulating its real-time performance on final revised data. At each evaluation step, the model is estimated using only data from periods 1 to i-1 (expanding window) or a rolling window ending at i-1, then used to produce a nowcast for period i. The nowcast is compared against the actual value at period i.
+
+**Usage**
+
+```r
+nc_backtest(
+  formula,
+  data,
+  method = "bridge",
+  ar_order = 1L,
+  start = 10L,
+  window = c("expanding", "rolling"),
+  window_size = 20L,
+  alpha = 0.05
+)
+```
+
+**Arguments**
+
+- `formula` — A formula for the bridge equation (e.g. `target ~ ind1 + ind2`).
+- `data` — A data frame (or `nc_dataset`) with a `date` column.
+- `method` — Character. Currently only `"bridge"` is supported.
+- `ar_order` — Integer. Number of autoregressive lags of the target to include (default 1). Set to 0 for a static bridge equation.
+- `start` — Integer. Minimum number of observations before the first backtest evaluation (default 10).
+- `window` — Character. `"expanding"` (default) or `"rolling"`.
+- `window_size` — Integer. Number of observations in the rolling window (ignored if `window = "expanding"`).
+- `alpha` — Numeric. Significance level for prediction intervals (default 0.05).
+
+**Returns**
+
+A `nowcast_backtest` object with components: resultsA data frame with columns `date`, `nowcast`, `actual`, `error`, `ci_lower`, `ci_upper`. actualsThe actual values used for evaluation. methodThe method used. window_type`"expanding"` or `"rolling"`. metricsA data frame with RMSE, MAE, and bias.
+
+**Example**
+
+```r
+set.seed(42)
+n <- 30
+d <- data.frame(
+  date = seq(as.Date("2015-01-01"), by = "quarter", length.out = n),
+  gdp = cumsum(rnorm(n, 0.5, 0.3)),
+  ind1 = cumsum(rnorm(n, 0.4, 0.2))
+)
+bt <- nc_backtest(gdp ~ ind1, data = d, start = 15)
+bt
+```
+
+---
+
+## `nc_bridge()`
+
+**Bridge Equation Nowcast**
+
+Estimate a bridge equation via OLS and produce a nowcast for the current or specified period. Bridge equations translate higher-frequency indicators (e.g. monthly) into estimates of a lower-frequency target (e.g. quarterly GDP). Following standard central bank practice (Baffigi et al. 2004, Runstler and Sedillot 2003), an autoregressive term for the target variable can be included via the `ar_order` argument.
+
+**Usage**
+
+```r
+nc_bridge(formula, data, newdata = NULL, ar_order = 1L, alpha = 0.05)
+```
+
+**Arguments**
+
+- `formula` — A formula with the target variable on the left-hand side and indicator variables on the right (e.g. `target ~ ind1 + ind2`).
+- `data` — A data frame (or `nc_dataset`) containing the variables in `formula` plus a `date` column.
+- `newdata` — A one-row data frame with indicator values for the nowcast period. If `NULL`, the last complete row of `data` is used.
+- `ar_order` — Integer. Number of autoregressive lags of the target to include (default 1). Set to 0 for a static bridge equation with no AR terms.
+- `alpha` — Numeric. Significance level for prediction intervals (default 0.05).
+
+**Returns**
+
+A `nowcast_result` object.
+
+**Example**
+
+```r
+# Synthetic example
+set.seed(42)
+d <- data.frame(
+  date = as.Date(paste0(2015:2024, "-01-01")),
+  gdp = cumsum(rnorm(10, 0.5, 0.3)),
+  ind1 = cumsum(rnorm(10, 0.4, 0.2)),
+  ind2 = cumsum(rnorm(10, 0.3, 0.4))
+)
+nc_bridge(gdp ~ ind1 + ind2, data = d)
+```
+
+---
+
+## `nc_compute()`
+
+**Compute a Nowcast by Method Name**
+
+A generic dispatcher that calls the appropriate nc_* function based on a string method name. Useful for programmatic workflows.
+
+**Usage**
+
+```r
+nc_compute(data, method = "bridge", ...)
+```
+
+**Arguments**
+
+- `data` — A data frame or `nc_dataset`.
+- `method` — Character. Name of the method: `"bridge"`.
+- `...` — Additional arguments passed to the underlying function.
+
+**Returns**
+
+A `nowcast_result` object.
+
+**Example**
+
+```r
+set.seed(42)
+d <- data.frame(
+  date = as.Date(paste0(2015:2024, "-01-01")),
+  gdp = cumsum(rnorm(10, 0.5, 0.3)),
+  ind1 = cumsum(rnorm(10, 0.4, 0.2))
+)
+nc_compute(d, method = "bridge", formula = gdp ~ ind1)
+```
+
+---
+
+## `nc_dm_test()`
+
+**Diebold-Mariano Test for Equal Predictive Accuracy**
+
+Tests whether two sets of forecast errors have equal predictive accuracy. Implements the modified test of Harvey, Leybourne, and Newbold (1997), which applies a finite-sample correction to the original Diebold and Mariano (1995) statistic and uses the t distribution rather than the normal. The Bartlett (triangular) kernel is used for HAC variance estimation, which guarantees a non-negative variance estimate.
+
+**Usage**
+
+```r
+nc_dm_test(
+  e1,
+  e2,
+  alternative = c("two.sided", "less", "greater"),
+  h = 1L,
+  loss = c("squared", "absolute")
+)
+```
+
+**Arguments**
+
+- `e1` — Numeric vector. Forecast errors from model 1.
+- `e2` — Numeric vector. Forecast errors from model 2 (same length).
+- `alternative` — Character. `"two.sided"`, `"less"` (model 1 better), or `"greater"` (model 2 better).
+- `h` — Integer. Forecast horizon (default 1). Used for the Newey-West bandwidth and HLN correction.
+- `loss` — Character. Loss function: `"squared"` or `"absolute"`.
+
+**Returns**
+
+A list with components `statistic`, `p_value`, `alternative`, `method`, and `n`.
+
+**Example**
+
+```r
+set.seed(1)
+e1 <- rnorm(50, sd = 1)
+e2 <- rnorm(50, sd = 1.5)
+nc_dm_test(e1, e2)
+```
+
+---
+
+## `nc_evaluate()`
+
+**Evaluate Nowcast Accuracy**
+
+Compute standard forecast evaluation metrics: root mean squared error (RMSE), mean absolute error (MAE), and mean bias.
+
+**Usage**
+
+```r
+nc_evaluate(forecast, actual)
+```
+
+**Arguments**
+
+- `forecast` — Numeric vector of nowcast/forecast values.
+- `actual` — Numeric vector of realised values (same length as `forecast`).
+
+**Returns**
+
+A data frame with one row and columns `rmse`, `mae`, and `bias`.
+
+**Example**
+
+```r
+nc_evaluate(c(1.0, 2.0, 3.0), c(1.1, 1.8, 3.2))
+```
+
+---
+
+## `nc_ragged_edge()`
+
+**Summarise Ragged-Edge Data Availability**
+
+Shows which series have data through which date, highlighting the ragged edge where indicators have different publication lags.
+
+**Usage**
+
+```r
+nc_ragged_edge(data)
+```
+
+**Arguments**
+
+- `data` — An `nc_dataset` object, or a data frame with a `date` column.
+
+**Returns**
+
+A data frame with columns `series`, `first_date`, `last_date`, `n_obs`, and `n_missing`.
+
+**Example**
+
+```r
+target <- data.frame(
+  date = as.Date(c("2020-01-01", "2020-04-01", "2020-07-01")),
+  value = c(0.5, -0.3, 0.8)
+)
+ind <- data.frame(
+  date = seq(as.Date("2020-01-01"), as.Date("2020-09-01"), by = "month"),
+  value = rnorm(9)
+)
+ds <- nc_align(target, indicator = ind)
+nc_ragged_edge(ds)
+```
+
+---
+
+## `nc_transform()`
+
+**Stationarity Transformations**
+
+Apply common transformations to make a time series stationary. Supports first differencing, log differencing (growth rates), and standardisation.
+
+**Usage**
+
+```r
+nc_transform(data, method = c("diff", "log_diff", "standardize"))
+```
+
+**Arguments**
+
+- `data` — A data frame with columns `date` and `value`, or a numeric vector.
+- `method` — Character. One of `"diff"` (first difference), `"log_diff"` (log first difference, i.e. percentage growth rate), or `"standardize"` (zero mean, unit variance).
+
+**Returns**
+
+A data frame with columns `date` and `value` (if input was a data frame), or a numeric vector (if input was numeric). The output is shorter by one observation for `"diff"` and `"log_diff"`.
+
+**Example**
+
+```r
+df <- data.frame(
+  date = seq(as.Date("2020-01-01"), as.Date("2020-06-01"), by = "month"),
+  value = c(100, 102, 101, 105, 103, 108)
+)
+nc_transform(df, method = "diff")
+nc_transform(df, method = "log_diff")
+nc_transform(df, method = "standardize")
+```
+
+---
+
