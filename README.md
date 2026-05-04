@@ -206,7 +206,7 @@ The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997)
 
 ## Related packages
 
-| Package | What it covers |
+| Package | Description |
 |---|---|
 | [`ons`](https://github.com/charlescoverdale/ons) | UK Office for National Statistics data (high and low frequency indicators) |
 | [`boe`](https://github.com/charlescoverdale/boe) | Bank of England data (Bank Rate, financial conditions) |
@@ -214,7 +214,9 @@ The `nc_dm_test()` function implements the Harvey, Leybourne, and Newbold (1997)
 | [`readecb`](https://github.com/charlescoverdale/readecb) | European Central Bank data (HICP, monetary aggregates) |
 | [`readoecd`](https://github.com/charlescoverdale/readoecd) | OECD cross-country macro indicators |
 | [`predictset`](https://github.com/charlescoverdale/predictset) | Conformal prediction intervals around nowcast point estimates |
-| [`inflateR`](https://github.com/charlescoverdale/inflateR) | Inflation adjustment for nominal series |
+| [`mpshock`](https://github.com/charlescoverdale/mpshock) | Monetary policy shock series |
+| [`inflationkit`](https://github.com/charlescoverdale/inflationkit) | Inflation analysis (decomposition, persistence, Phillips curve) |
+| [`ivcheck`](https://github.com/charlescoverdale/ivcheck) | IV diagnostics (for treatment-effect-style nowcasts) |
 
 ---
 
