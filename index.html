@@ -81,7 +81,7 @@
 <h2 id="how-does-nowcast-compare-to-other-packages">How does nowcast compare to other packages?<a class="anchor" aria-label="anchor" href="#how-does-nowcast-compare-to-other-packages"></a>
 </h2>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th>Feature</th>
 <th><strong>nowcast</strong></th>
 <th><strong>bridgr</strong></th>
@@ -89,56 +89,56 @@
 <th><strong>dfms</strong></th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Bridge equations</td>
 <td>Yes (with AR terms)</td>
 <td>Yes</td>
 <td>No</td>
 <td>No</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Mixed-frequency alignment</td>
 <td>Yes</td>
 <td>No</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Ragged-edge diagnostics</td>
 <td>Yes</td>
 <td>No</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Pseudo-real-time backtest</td>
 <td>Yes</td>
 <td>No</td>
 <td>Yes (rolling)</td>
 <td>No</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Diebold-Mariano test</td>
 <td>Yes (HLN corrected)</td>
 <td>No</td>
 <td>No</td>
 <td>No</td>
 </tr>
-<tr class="even">
+<tr>
 <td>MIDAS</td>
 <td>No</td>
 <td>No</td>
 <td>Yes</td>
 <td>No</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Dynamic factor models</td>
 <td>No</td>
 <td>No</td>
 <td>No</td>
 <td>Yes</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Dependencies</td>
 <td>1 (cli)</td>
 <td>8+ (tidyverse)</td>
@@ -239,75 +239,75 @@
 <col width="33%">
 <col width="33%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Category</th>
 <th>Function</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Data</td>
 <td><code><a href="reference/nc_align.html">nc_align()</a></code></td>
 <td>Align mixed-frequency target and indicators</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Data</td>
 <td><code><a href="reference/nc_ragged_edge.html">nc_ragged_edge()</a></code></td>
 <td>Summarise data availability across series</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Data</td>
 <td><code><a href="reference/nc_aggregate.html">nc_aggregate()</a></code></td>
 <td>Temporal aggregation (monthly to quarterly/annual)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Data</td>
 <td><code><a href="reference/nc_transform.html">nc_transform()</a></code></td>
 <td>Stationarity transforms (diff, log_diff, standardize)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Estimation</td>
 <td><code><a href="reference/nc_bridge.html">nc_bridge()</a></code></td>
 <td>Bridge equation with optional AR terms</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Evaluation</td>
 <td><code><a href="reference/nc_evaluate.html">nc_evaluate()</a></code></td>
 <td>RMSE, MAE, and bias</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Evaluation</td>
 <td><code><a href="reference/nc_dm_test.html">nc_dm_test()</a></code></td>
 <td>Diebold-Mariano test (HLN corrected)</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Evaluation</td>
 <td><code><a href="reference/nc_backtest.html">nc_backtest()</a></code></td>
 <td>Pseudo-real-time expanding/rolling window evaluation</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Utility</td>
 <td><code><a href="reference/nc_available.html">nc_available()</a></code></td>
 <td>List available methods</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Utility</td>
 <td><code><a href="reference/nc_compute.html">nc_compute()</a></code></td>
 <td>Generic dispatcher by method name</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>S3</td>
 <td>
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> / <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 </td>
 <td>cli-formatted output for all objects</td>
 </tr>
-<tr class="even">
+<tr>
 <td>S3</td>
 <td><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></td>
 <td>Actual vs fitted/nowcast plots</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>S3</td>
 <td><code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code></td>
 <td>Predict from fitted nowcast model</td>
@@ -393,38 +393,46 @@
 <col width="50%">
 <col width="50%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Package</th>
-<th>What it covers</th>
+<th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><a href="https://github.com/charlescoverdale/ons" class="external-link"><code>ons</code></a></td>
 <td>UK Office for National Statistics data (high and low frequency indicators)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="https://github.com/charlescoverdale/boe" class="external-link"><code>boe</code></a></td>
 <td>Bank of England data (Bank Rate, financial conditions)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><a href="https://github.com/charlescoverdale/fred" class="external-link"><code>fred</code></a></td>
 <td>Federal Reserve Economic Data (US monthly and quarterly indicators)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="https://github.com/charlescoverdale/readecb" class="external-link"><code>readecb</code></a></td>
 <td>European Central Bank data (HICP, monetary aggregates)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><a href="https://github.com/charlescoverdale/readoecd" class="external-link"><code>readoecd</code></a></td>
 <td>OECD cross-country macro indicators</td>
 </tr>
-<tr class="even">
+<tr>
 <td><a href="https://github.com/charlescoverdale/predictset" class="external-link"><code>predictset</code></a></td>
 <td>Conformal prediction intervals around nowcast point estimates</td>
 </tr>
-<tr class="odd">
-<td><a href="https://github.com/charlescoverdale/inflateR" class="external-link"><code>inflateR</code></a></td>
-<td>Inflation adjustment for nominal series</td>
+<tr>
+<td><a href="https://github.com/charlescoverdale/mpshock" class="external-link"><code>mpshock</code></a></td>
+<td>Monetary policy shock series</td>
+</tr>
+<tr>
+<td><a href="https://github.com/charlescoverdale/inflationkit" class="external-link"><code>inflationkit</code></a></td>
+<td>Inflation analysis (decomposition, persistence, Phillips curve)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/charlescoverdale/ivcheck" class="external-link"><code>ivcheck</code></a></td>
+<td>IV diagnostics (for treatment-effect-style nowcasts)</td>
 </tr>
 </tbody>
 </table>

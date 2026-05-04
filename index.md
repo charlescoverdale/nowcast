@@ -19,6 +19,7 @@ sooner.
 ## Installation
 
 ``` r
+
 install.packages("nowcast")
 
 # Or install the development version from GitHub
@@ -27,6 +28,7 @@ devtools::install_github("charlescoverdale/nowcast")
 ```
 
 ``` r
+
 library(nowcast)
 
 # Nowcast GDP from monthly indicators
@@ -59,16 +61,16 @@ through pseudo-real-time backtesting.
 
 ## How does nowcast compare to other packages?
 
-| Feature                   | **nowcast**         | **bridgr**     | **midasr**    | **dfms** |
-|---------------------------|---------------------|----------------|---------------|----------|
-| Bridge equations          | Yes (with AR terms) | Yes            | No            | No       |
-| Mixed-frequency alignment | Yes                 | No             | No            | Yes      |
-| Ragged-edge diagnostics   | Yes                 | No             | No            | Yes      |
-| Pseudo-real-time backtest | Yes                 | No             | Yes (rolling) | No       |
-| Diebold-Mariano test      | Yes (HLN corrected) | No             | No            | No       |
-| MIDAS                     | No                  | No             | Yes           | No       |
-| Dynamic factor models     | No                  | No             | No            | Yes      |
-| Dependencies              | 1 (cli)             | 8+ (tidyverse) | 6+            | 3        |
+| Feature | **nowcast** | **bridgr** | **midasr** | **dfms** |
+|----|----|----|----|----|
+| Bridge equations | Yes (with AR terms) | Yes | No | No |
+| Mixed-frequency alignment | Yes | No | No | Yes |
+| Ragged-edge diagnostics | Yes | No | No | Yes |
+| Pseudo-real-time backtest | Yes | No | Yes (rolling) | No |
+| Diebold-Mariano test | Yes (HLN corrected) | No | No | No |
+| MIDAS | No | No | Yes | No |
+| Dynamic factor models | No | No | No | Yes |
+| Dependencies | 1 (cli) | 8+ (tidyverse) | 6+ | 3 |
 
 **nowcast** provides bridge equations with integrated evaluation in a
 lightweight package. `bridgr` does bridge equations within the tidyverse
@@ -85,6 +87,7 @@ same data.
 ### 1. Align mixed-frequency data
 
 ``` r
+
 library(nowcast)
 
 # Quarterly target (e.g. GDP growth)
@@ -118,6 +121,7 @@ nc_ragged_edge(aligned)
 ### 2. Estimate a bridge equation
 
 ``` r
+
 # Bridge equation with AR(1) term (default)
 result <- nc_bridge(target ~ retail + ip, data = aligned)
 result
@@ -138,6 +142,7 @@ nc_bridge(target ~ retail + ip, data = aligned, ar_order = 0)
 ### 3. Evaluate with pseudo-real-time backtesting
 
 ``` r
+
 # Expanding-window backtest: train on 1:i-1, nowcast i
 bt <- nc_backtest(target ~ retail + ip, data = aligned, start = 20)
 bt
@@ -161,21 +166,21 @@ plot(bt)
 
 ## Functions
 
-| Category   | Function                                                                                            | Description                                           |
-|------------|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------|
-| Data       | [`nc_align()`](https://charlescoverdale.github.io/nowcast/reference/nc_align.md)                    | Align mixed-frequency target and indicators           |
-| Data       | [`nc_ragged_edge()`](https://charlescoverdale.github.io/nowcast/reference/nc_ragged_edge.md)        | Summarise data availability across series             |
-| Data       | [`nc_aggregate()`](https://charlescoverdale.github.io/nowcast/reference/nc_aggregate.md)            | Temporal aggregation (monthly to quarterly/annual)    |
-| Data       | [`nc_transform()`](https://charlescoverdale.github.io/nowcast/reference/nc_transform.md)            | Stationarity transforms (diff, log_diff, standardize) |
-| Estimation | [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md)                  | Bridge equation with optional AR terms                |
-| Evaluation | [`nc_evaluate()`](https://charlescoverdale.github.io/nowcast/reference/nc_evaluate.md)              | RMSE, MAE, and bias                                   |
-| Evaluation | [`nc_dm_test()`](https://charlescoverdale.github.io/nowcast/reference/nc_dm_test.md)                | Diebold-Mariano test (HLN corrected)                  |
-| Evaluation | [`nc_backtest()`](https://charlescoverdale.github.io/nowcast/reference/nc_backtest.md)              | Pseudo-real-time expanding/rolling window evaluation  |
-| Utility    | [`nc_available()`](https://charlescoverdale.github.io/nowcast/reference/nc_available.md)            | List available methods                                |
-| Utility    | [`nc_compute()`](https://charlescoverdale.github.io/nowcast/reference/nc_compute.md)                | Generic dispatcher by method name                     |
-| S3         | [`print()`](https://rdrr.io/r/base/print.html) / [`summary()`](https://rdrr.io/r/base/summary.html) | cli-formatted output for all objects                  |
-| S3         | [`plot()`](https://rdrr.io/r/graphics/plot.default.html)                                            | Actual vs fitted/nowcast plots                        |
-| S3         | [`predict()`](https://rdrr.io/r/stats/predict.html)                                                 | Predict from fitted nowcast model                     |
+| Category | Function | Description |
+|----|----|----|
+| Data | [`nc_align()`](https://charlescoverdale.github.io/nowcast/reference/nc_align.md) | Align mixed-frequency target and indicators |
+| Data | [`nc_ragged_edge()`](https://charlescoverdale.github.io/nowcast/reference/nc_ragged_edge.md) | Summarise data availability across series |
+| Data | [`nc_aggregate()`](https://charlescoverdale.github.io/nowcast/reference/nc_aggregate.md) | Temporal aggregation (monthly to quarterly/annual) |
+| Data | [`nc_transform()`](https://charlescoverdale.github.io/nowcast/reference/nc_transform.md) | Stationarity transforms (diff, log_diff, standardize) |
+| Estimation | [`nc_bridge()`](https://charlescoverdale.github.io/nowcast/reference/nc_bridge.md) | Bridge equation with optional AR terms |
+| Evaluation | [`nc_evaluate()`](https://charlescoverdale.github.io/nowcast/reference/nc_evaluate.md) | RMSE, MAE, and bias |
+| Evaluation | [`nc_dm_test()`](https://charlescoverdale.github.io/nowcast/reference/nc_dm_test.md) | Diebold-Mariano test (HLN corrected) |
+| Evaluation | [`nc_backtest()`](https://charlescoverdale.github.io/nowcast/reference/nc_backtest.md) | Pseudo-real-time expanding/rolling window evaluation |
+| Utility | [`nc_available()`](https://charlescoverdale.github.io/nowcast/reference/nc_available.md) | List available methods |
+| Utility | [`nc_compute()`](https://charlescoverdale.github.io/nowcast/reference/nc_compute.md) | Generic dispatcher by method name |
+| S3 | [`print()`](https://rdrr.io/r/base/print.html) / [`summary()`](https://rdrr.io/r/base/summary.html) | cli-formatted output for all objects |
+| S3 | [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | Actual vs fitted/nowcast plots |
+| S3 | [`predict()`](https://rdrr.io/r/stats/predict.html) | Predict from fitted nowcast model |
 
 ------------------------------------------------------------------------
 
@@ -194,10 +199,12 @@ Following standard practice,
 includes an autoregressive term by default (`ar_order = 1`) to capture
 GDP momentum. The model is:
 
-$$y_{t} = \alpha + \phi y_{t - 1} + \sum\limits_{i}\beta_{i}{\bar{x}}_{i,t} + \varepsilon_{t}$$
+``` math
+y_t = \alpha + \phi y_{t-1} + \sum_i \beta_i \bar{x}_{i,t} + \varepsilon_t
+```
 
-where ${\bar{x}}_{i,t}$ is the within-quarter mean of monthly indicator
-$i$.
+where $`\bar{x}_{i,t}`$ is the within-quarter mean of monthly indicator
+$`i`$.
 
 Prediction intervals come from
 `predict.lm(..., interval = "prediction")`, which accounts for both
@@ -290,15 +297,17 @@ evaluation requires vintage data (e.g. from FRED’s ALFRED database).
 
 ## Related packages
 
-| Package                                                        | What it covers                                                             |
-|----------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`ons`](https://github.com/charlescoverdale/ons)               | UK Office for National Statistics data (high and low frequency indicators) |
-| [`boe`](https://github.com/charlescoverdale/boe)               | Bank of England data (Bank Rate, financial conditions)                     |
-| [`fred`](https://github.com/charlescoverdale/fred)             | Federal Reserve Economic Data (US monthly and quarterly indicators)        |
-| [`readecb`](https://github.com/charlescoverdale/readecb)       | European Central Bank data (HICP, monetary aggregates)                     |
-| [`readoecd`](https://github.com/charlescoverdale/readoecd)     | OECD cross-country macro indicators                                        |
-| [`predictset`](https://github.com/charlescoverdale/predictset) | Conformal prediction intervals around nowcast point estimates              |
-| [`inflateR`](https://github.com/charlescoverdale/inflateR)     | Inflation adjustment for nominal series                                    |
+| Package | Description |
+|----|----|
+| [`ons`](https://github.com/charlescoverdale/ons) | UK Office for National Statistics data (high and low frequency indicators) |
+| [`boe`](https://github.com/charlescoverdale/boe) | Bank of England data (Bank Rate, financial conditions) |
+| [`fred`](https://github.com/charlescoverdale/fred) | Federal Reserve Economic Data (US monthly and quarterly indicators) |
+| [`readecb`](https://github.com/charlescoverdale/readecb) | European Central Bank data (HICP, monetary aggregates) |
+| [`readoecd`](https://github.com/charlescoverdale/readoecd) | OECD cross-country macro indicators |
+| [`predictset`](https://github.com/charlescoverdale/predictset) | Conformal prediction intervals around nowcast point estimates |
+| [`mpshock`](https://github.com/charlescoverdale/mpshock) | Monetary policy shock series |
+| [`inflationkit`](https://github.com/charlescoverdale/inflationkit) | Inflation analysis (decomposition, persistence, Phillips curve) |
+| [`ivcheck`](https://github.com/charlescoverdale/ivcheck) | IV diagnostics (for treatment-effect-style nowcasts) |
 
 ------------------------------------------------------------------------
 
