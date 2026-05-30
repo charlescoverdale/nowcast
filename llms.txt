@@ -11,6 +11,9 @@ stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+A technical working paper for this package can be found
+[here](https://charlescoverdale.github.io/files/coverdale_nowcast_2026.pdf).
+
 **nowcast** is an R package for economic nowcasting. It estimates the
 current state of a macroeconomic variable (like GDP) before the official
 data are released, using higher-frequency indicators that are available
