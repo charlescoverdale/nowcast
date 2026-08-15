@@ -1,0 +1,84 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Aruoba et~al.(2009)Aruoba, Diebold, and Scotti]{aruoba2009real}
+S.~B. Aruoba, F.~X. Diebold, and C.~Scotti.
+\newblock Real-time measurement of business conditions.
+\newblock \emph{Journal of Business \& Economic Statistics}, 27\penalty0 (4):\penalty0 417--427, 2009.
+\newblock \doi{10.1198/jbes.2009.07205}.
+
+\bibitem[Baffigi et~al.(2004)Baffigi, Golinelli, and Parigi]{baffigi2004bridge}
+A.~Baffigi, R.~Golinelli, and G.~Parigi.
+\newblock Bridge models to forecast the euro area {GDP}.
+\newblock \emph{International Journal of Forecasting}, 20\penalty0 (3):\penalty0 447--460, 2004.
+\newblock \doi{10.1016/S0169-2070(03)00067-0}.
+
+\bibitem[Bok et~al.(2018)Bok, Caratelli, Giannone, Sbordone, and Tambalotti]{bok2018macroeconomic}
+B.~Bok, D.~Caratelli, D.~Giannone, A.~M. Sbordone, and A.~Tambalotti.
+\newblock Macroeconomic nowcasting and forecasting with big data.
+\newblock \emph{Annual Review of Economics}, 10:\penalty0 615--643, 2018.
+\newblock \doi{10.1146/annurev-economics-080217-053214}.
+
+\bibitem[Clements and Galv{\~a}o(2008)]{clements2008macroeconomic}
+M.~P. Clements and A.~B. Galv{\~a}o.
+\newblock Macroeconomic forecasting with mixed-frequency data: Forecasting output growth in the {U}nited {S}tates.
+\newblock \emph{Journal of Business \& Economic Statistics}, 26\penalty0 (4):\penalty0 546--554, 2008.
+\newblock \doi{10.1198/073500108000000015}.
+
+\bibitem[Croushore and Stark(2003)]{stark2002database}
+D.~Croushore and T.~Stark.
+\newblock A real-time data set for macroeconomists: Does the data vintage matter?
+\newblock \emph{Review of Economics and Statistics}, 85\penalty0 (3):\penalty0 605--617, 2003.
+\newblock \doi{10.1162/003465303322369759}.
+
+\bibitem[Diebold and Mariano(1995)]{diebold1995comparing}
+F.~X. Diebold and R.~S. Mariano.
+\newblock Comparing predictive accuracy.
+\newblock \emph{Journal of Business \& Economic Statistics}, 13\penalty0 (3):\penalty0 253--263, 1995.
+\newblock \doi{10.1080/07350015.1995.10524599}.
+
+\bibitem[Foroni and Marcellino(2013)]{foroni2013survey}
+C.~Foroni and M.~Marcellino.
+\newblock A survey of econometric methods for mixed-frequency data.
+\newblock Working Paper 2013/06, Norges Bank, 2013.
+
+\bibitem[Ghysels et~al.(2004)Ghysels, Santa-Clara, and Valkanov]{ghysels2004midas}
+E.~Ghysels, P.~Santa-Clara, and R.~Valkanov.
+\newblock The {MIDAS} touch: Mixed data sampling regression models.
+\newblock CIRANO Working Paper 2004s-20, University of California, Los Angeles, Anderson School of Management, 2004.
+
+\bibitem[Giannone et~al.(2008)Giannone, Reichlin, and Small]{giannone2008nowcasting}
+D.~Giannone, L.~Reichlin, and D.~Small.
+\newblock Nowcasting: The real-time informational content of macroeconomic data.
+\newblock \emph{Journal of Monetary Economics}, 55\penalty0 (4):\penalty0 665--676, 2008.
+\newblock \doi{10.1016/j.jmoneco.2008.05.010}.
+
+\bibitem[Harvey et~al.(1997)Harvey, Leybourne, and Newbold]{harvey1997testing}
+D.~Harvey, S.~Leybourne, and P.~Newbold.
+\newblock Testing the equality of prediction mean squared errors.
+\newblock \emph{International Journal of Forecasting}, 13\penalty0 (2):\penalty0 281--291, 1997.
+\newblock \doi{10.1016/S0169-2070(96)00719-4}.
+
+\bibitem[Mariano and Murasawa(2003)]{mariano2003new}
+R.~S. Mariano and Y.~Murasawa.
+\newblock A new coincident index of business cycles based on monthly and quarterly series.
+\newblock \emph{Journal of Applied Econometrics}, 18\penalty0 (4):\penalty0 427--443, 2003.
+\newblock \doi{10.1002/jae.695}.
+
+\bibitem[Schumacher(2016)]{schumacher2016comparison}
+C.~Schumacher.
+\newblock A comparison of {MIDAS} and bridge equations.
+\newblock \emph{International Journal of Forecasting}, 32\penalty0 (2):\penalty0 257--270, 2016.
+\newblock \doi{10.1016/j.ijforecast.2015.07.004}.
+
+\bibitem[Wallis(1986)]{wallis1986forecasting}
+K.~F. Wallis.
+\newblock Forecasting with an econometric model: The `ragged edge' problem.
+\newblock \emph{Journal of Forecasting}, 5\penalty0 (1):\penalty0 1--13, 1986.
+\newblock \doi{10.1002/for.3980050102}.
+
+\end{thebibliography}

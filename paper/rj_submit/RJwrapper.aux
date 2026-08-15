@@ -1,0 +1,103 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\bibstyle{abbrvnat}
+\citation{mariano2003new}
+\citation{baffigi2004bridge}
+\citation{schumacher2016comparison}
+\citation{clements2008macroeconomic}
+\citation{foroni2013survey}
+\citation{wallis1986forecasting}
+\citation{stark2002database}
+\citation{giannone2008nowcasting}
+\citation{aruoba2009real}
+\citation{bok2018macroeconomic}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}nowcast: Economic Nowcasting with Bridge Equations and Real-Time Evaluation in R}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Introduction}{1}{section.2.1}\protected@file@percent }
+\newlabel{introduction}{{2.1}{1}{Introduction}{section.2.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Background}{1}{section.2.2}\protected@file@percent }
+\newlabel{background}{{2.2}{1}{Background}{section.2.2}{}}
+\@writefile{brf}{\backcite{mariano2003new}{{1}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{baffigi2004bridge}{{1}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{schumacher2016comparison}{{1}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{clements2008macroeconomic}{{1}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{foroni2013survey}{{1}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{wallis1986forecasting}{{1}{2.2}{section.2.2}}}
+\citation{diebold1995comparing}
+\citation{harvey1997testing}
+\@writefile{brf}{\backcite{stark2002database}{{2}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{giannone2008nowcasting}{{2}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{aruoba2009real}{{2}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{bok2018macroeconomic}{{2}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{diebold1995comparing}{{2}{2.2}{section.2.2}}}
+\@writefile{brf}{\backcite{harvey1997testing}{{2}{2.2}{section.2.2}}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Package design}{2}{section.2.3}\protected@file@percent }
+\newlabel{package-design}{{2.3}{2}{Package design}{section.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Architecture}{2}{subsection.2.3.1}\protected@file@percent }
+\newlabel{architecture}{{2.3.1}{2}{Architecture}{subsection.2.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Uniform function interface}{2}{subsection.2.3.2}\protected@file@percent }
+\newlabel{uniform-function-interface}{{2.3.2}{2}{Uniform function interface}{subsection.2.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}S3 classes and methods}{2}{subsection.2.3.3}\protected@file@percent }
+\newlabel{s3-classes-and-methods}{{2.3.3}{2}{S3 classes and methods}{subsection.2.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.4}Reproducibility}{2}{subsection.2.3.4}\protected@file@percent }
+\newlabel{reproducibility}{{2.3.4}{2}{Reproducibility}{subsection.2.3.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Alignment and the ragged edge}{2}{section.2.4}\protected@file@percent }
+\newlabel{alignment-and-the-ragged-edge}{{2.4}{2}{Alignment and the ragged edge}{section.2.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Availability heatmap of four US monthly indicators over the last 24 months. Blue tiles mark months with published observations, grey tiles mark months where the series has not yet been released. The jagged right edge at the most recent dates is the problem \texttt  {nc\_align()} solves: retail sales, industrial production, payrolls, and sentiment all have different publication lags.}}{3}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:ragged}{{1}{3}{Availability heatmap of four US monthly indicators over the last 24 months. Blue tiles mark months with published observations, grey tiles mark months where the series has not yet been released. The jagged right edge at the most recent dates is the problem \texttt {nc\_align()} solves: retail sales, industrial production, payrolls, and sentiment all have different publication lags}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Bridge equations}{3}{section.2.5}\protected@file@percent }
+\newlabel{bridge-equations}{{2.5}{3}{Bridge equations}{section.2.5}{}}
+\citation{giannone2008nowcasting}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Pseudo-real-time bridge-equation nowcast of quarterly US real GDP growth, 2012 onwards. Grey solid line is the realised log-difference of real GDP from FRED series \texttt  {GDPC1}. Blue dashed line is the one-step-ahead nowcast from \texttt  {nc\_backtest()} with four monthly indicators aggregated to quarterly frequency. Nowcast RMSE over the evaluation window is 0.95 percentage points, MAE is 0.51, bias is 0.03.}}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:backtest}{{2}{4}{Pseudo-real-time bridge-equation nowcast of quarterly US real GDP growth, 2012 onwards. Grey solid line is the realised log-difference of real GDP from FRED series \texttt {GDPC1}. Blue dashed line is the one-step-ahead nowcast from \texttt {nc\_backtest()} with four monthly indicators aggregated to quarterly frequency. Nowcast RMSE over the evaluation window is 0.95 percentage points, MAE is 0.51, bias is 0.03}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Bridge-equation coefficients for four monthly indicators, full-sample fit. Points are ordinary-least-squares estimates; horizontal bars are 95 per cent confidence intervals. Vertical line at zero marks no effect. Retail sales and industrial production dominate; payrolls and sentiment contribute marginally in this specification.}}{4}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:coeffs}{{3}{4}{Bridge-equation coefficients for four monthly indicators, full-sample fit. Points are ordinary-least-squares estimates; horizontal bars are 95 per cent confidence intervals. Vertical line at zero marks no effect. Retail sales and industrial production dominate; payrolls and sentiment contribute marginally in this specification}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}Pseudo-real-time evaluation}{4}{section.2.6}\protected@file@percent }
+\newlabel{pseudo-real-time-evaluation}{{2.6}{4}{Pseudo-real-time evaluation}{section.2.6}{}}
+\@writefile{brf}{\backcite{giannone2008nowcasting}{{4}{2.6}{section.2.6}}}
+\citation{harvey1997testing}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Nowcast error (nowcast minus realised) from expanding-window and rolling-window backtests of the same bridge-equation specification. Expanding window (blue, solid) uses all prior data at each step; rolling window (red, dashed) uses the preceding 40 quarters only. Both peak around the 2020 pandemic contraction; the rolling specification is more responsive afterwards.}}{5}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:window}{{4}{5}{Nowcast error (nowcast minus realised) from expanding-window and rolling-window backtests of the same bridge-equation specification. Expanding window (blue, solid) uses all prior data at each step; rolling window (red, dashed) uses the preceding 40 quarters only. Both peak around the 2020 pandemic contraction; the rolling specification is more responsive afterwards}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Testing equal predictive accuracy}{5}{section.2.7}\protected@file@percent }
+\newlabel{testing-equal-predictive-accuracy}{{2.7}{5}{Testing equal predictive accuracy}{section.2.7}{}}
+\@writefile{brf}{\backcite{harvey1997testing}{{5}{2.7}{section.2.7}}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Backtest metrics for three bridge-equation specifications on US real GDP growth. Expanding window, first evaluation at quarter forty, 2012-present evaluation sample. Adding the AR(1) term marginally reduces RMSE; dropping two of the four indicators modestly widens it.}}{6}{table.caption.7}\protected@file@percent }
+\newlabel{tab:metrics}{{1}{6}{Backtest metrics for three bridge-equation specifications on US real GDP growth. Expanding window, first evaluation at quarter forty, 2012-present evaluation sample. Adding the AR(1) term marginally reduces RMSE; dropping two of the four indicators modestly widens it}{table.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Diebold-Mariano comparison of two bridge-equation specifications on US GDP. Bars show backtest RMSE. Left: bridge with an AR(1) term. Right: bridge without. The HLN-corrected Diebold-Mariano test statistic and p-value are reported in the annotation box. The test fails to reject the null of equal predictive accuracy.}}{6}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:dm}{{5}{6}{Diebold-Mariano comparison of two bridge-equation specifications on US GDP. Bars show backtest RMSE. Left: bridge with an AR(1) term. Right: bridge without. The HLN-corrected Diebold-Mariano test statistic and p-value are reported in the annotation box. The test fails to reject the null of equal predictive accuracy}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.8}Replication}{6}{section.2.8}\protected@file@percent }
+\newlabel{replication}{{2.8}{6}{Replication}{section.2.8}{}}
+\citation{ghysels2004midas}
+\citation{giannone2008nowcasting}
+\citation{harvey1997testing}
+\@writefile{toc}{\contentsline {section}{\numberline {2.9}A case study of the 2020 pandemic quarter by quarter}{7}{section.2.9}\protected@file@percent }
+\newlabel{a-case-study-of-the-2020-pandemic-quarter-by-quarter}{{2.9}{7}{A case study of the 2020 pandemic quarter by quarter}{section.2.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.10}Limitations}{7}{section.2.10}\protected@file@percent }
+\newlabel{limitations}{{2.10}{7}{Limitations}{section.2.10}{}}
+\@writefile{brf}{\backcite{ghysels2004midas}{{7}{1}{Item.1}}}
+\@writefile{brf}{\backcite{giannone2008nowcasting}{{7}{1}{Item.1}}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.11}Appendix of formula definitions}{7}{section.2.11}\protected@file@percent }
+\newlabel{appendix-of-formula-definitions}{{2.11}{7}{Appendix of formula definitions}{section.2.11}{}}
+\@writefile{brf}{\backcite{harvey1997testing}{{7}{2.11}{section.2.11}}}
+\bibdata{RJreferences.bib}
+\bibcite{aruoba2009real}{{1}{2009}{{Aruoba et~al.}}{{Aruoba, Diebold, and Scotti}}}
+\bibcite{baffigi2004bridge}{{2}{2004}{{Baffigi et~al.}}{{Baffigi, Golinelli, and Parigi}}}
+\bibcite{bok2018macroeconomic}{{3}{2018}{{Bok et~al.}}{{Bok, Caratelli, Giannone, Sbordone, and Tambalotti}}}
+\bibcite{clements2008macroeconomic}{{4}{2008}{{Clements and Galv{\~a}o}}{{}}}
+\bibcite{diebold1995comparing}{{5}{1995}{{Diebold and Mariano}}{{}}}
+\bibcite{foroni2013survey}{{6}{2013}{{Foroni and Marcellino}}{{}}}
+\bibcite{ghysels2004midas}{{7}{2004}{{Ghysels et~al.}}{{Ghysels, Santa-Clara, and Valkanov}}}
+\bibcite{giannone2008nowcasting}{{8}{2008}{{Giannone et~al.}}{{Giannone, Reichlin, and Small}}}
+\bibcite{harvey1997testing}{{9}{1997}{{Harvey et~al.}}{{Harvey, Leybourne, and Newbold}}}
+\bibcite{mariano2003new}{{10}{2003}{{Mariano and Murasawa}}{{}}}
+\bibcite{schumacher2016comparison}{{11}{2016}{{Schumacher}}{{}}}
+\bibcite{stark2002database}{{12}{2002}{{Stark and Croushore}}{{}}}
+\bibcite{wallis1986forecasting}{{13}{1986}{{Wallis}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.12}Conclusion}{8}{section.2.12}\protected@file@percent }
+\newlabel{conclusion}{{2.12}{8}{Conclusion}{section.2.12}{}}
+\newlabel{acknowledgements}{{2.12}{8}{}{section.2.12}{}}
+\@writefile{toc}{\contentsline {section}{Acknowledgements}{8}{section.2.12}\protected@file@percent }
+\ttl@finishall
+\gdef \@abspage@last{9}

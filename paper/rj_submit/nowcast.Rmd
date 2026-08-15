@@ -1,5 +1,5 @@
 ---
-title: "Nowcast: Economic Nowcasting with Bridge Equations and Real-Time Evaluation in R"
+title: "nowcast: Economic Nowcasting with Bridge Equations and Real-Time Evaluation in R"
 date: "2026-04-19"
 abstract: >
   The nowcast package provides bridge-equation nowcasting in R. It

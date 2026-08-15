@@ -3,7 +3,8 @@
 
 ## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
-                      fig.align = "center", out.width = "100%")
+                      fig.align = "center", out.width = "100%",
+                      fig.pos = "H", out.extra = "")
 
 
 ## ----ragged, fig.cap = "Availability heatmap of four US monthly indicators over the last 24 months. Blue tiles mark months with published observations, grey tiles mark months where the series has not yet been released. The jagged right edge at the most recent dates is the problem \\texttt{nc\\_align()} solves: retail sales, industrial production, payrolls, and sentiment all have different publication lags.", fig.alt = "A heatmap with four rows (retail sales, industrial production, nonfarm payrolls, consumer sentiment) and 24 columns (months). Blue tiles indicate months with published observations; grey tiles indicate months not yet released. The right edge is jagged: sentiment extends furthest, payrolls and retail sales end one month earlier, industrial production two months earlier. This illustrates the ragged-edge publication pattern."----
