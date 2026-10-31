@@ -11,3 +11,5 @@
 ^research_existing_packages\.md$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^llms.*\.txt$
+^paper$
