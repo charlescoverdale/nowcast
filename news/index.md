@@ -1,5 +1,10 @@
 # Changelog
 
+## nowcast (development version)
+
+- The nowcast print method showed the interval level as a quoted string
+  (`"95%" CI`); it prints as `95% CI` again.
+
 ## nowcast 0.1.0
 
 CRAN release: 2026-03-25

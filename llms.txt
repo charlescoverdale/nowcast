@@ -112,10 +112,10 @@ ip <- data.frame(
 # Align: monthly indicators are averaged to quarterly frequency
 aligned <- nc_align(gdp, retail = retail, ip = ip)
 aligned
-#> ── Aligned Nowcasting Dataset ──
-#> • Target: target (quarterly)
-#> • Indicators: 2 (retail, ip)
-#> • Periods: 40 (2015-01-01 to 2024-10-01)
+#> -- Aligned Nowcasting Dataset --------------------------------------------------
+#> * Target: target (quarterly)
+#> * Indicators: 2 (retail, ip)
+#> * Periods: 40 (2015-01-01 to 2024-10-01)
 
 # See the ragged edge
 nc_ragged_edge(aligned)
@@ -128,12 +128,12 @@ nc_ragged_edge(aligned)
 # Bridge equation with AR(1) term (default)
 result <- nc_bridge(target ~ retail + ip, data = aligned)
 result
-#> ── Nowcast (Bridge Equation) ──
-#> • Nowcast: 0.4832
-#> • SE: 0.3156
-#> • 95% CI: [-0.1467, 1.1131]
-#> • Target period: 2024-10-01
-#> • R-squared: 0.1523 | Obs: 38
+#> -- Nowcast (Bridge Equation) ---------------------------------------------------
+#> * Nowcast: 0.6041
+#> * SE: 0.2372
+#> * 95% CI: [0.1224, 1.0857]
+#> * Target period: 2024-10-01
+#> * R-squared: 0.1368 | Obs: 39
 
 # Full summary with coefficients
 summary(result)
@@ -149,17 +149,19 @@ nc_bridge(target ~ retail + ip, data = aligned, ar_order = 0)
 # Expanding-window backtest: train on 1:i-1, nowcast i
 bt <- nc_backtest(target ~ retail + ip, data = aligned, start = 20)
 bt
-#> ── Nowcast Backtest (bridge, expanding) ──
-#> • Evaluations: 18
-#> • RMSE: 0.2847
-#> • MAE: 0.2312
-#> • Bias: 0.0043
+#> -- Nowcast Backtest (bridge, expanding) ----------------------------------------
+#> * Evaluations: 20
+#> * Period: 2020-01-01 to 2024-10-01
+#> * RMSE: 0.2273
+#> * MAE: 0.1724
+#> * Bias: -0.0812
 
 # Compare two specifications
 bt_static <- nc_backtest(target ~ retail + ip, data = aligned,
                           start = 20, ar_order = 0)
-nc_dm_test(bt$results$error, bt_static$results$error)
-#> Diebold-Mariano (HLN): p = 0.42
+dm <- nc_dm_test(bt$results$error, bt_static$results$error)
+dm$p_value
+#> [1] 0.9647888
 
 # Plot actual vs nowcast
 plot(bt)

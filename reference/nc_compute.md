@@ -44,7 +44,7 @@ nc_compute(d, method = "bridge", formula = gdp ~ ind1)
 #> ── Nowcast (Bridge Equation) ───────────────────────────────────────────────────
 #> • Nowcast: 6.9103
 #> • SE: 0.3336
-#> • "95%" CI: [6.094, 7.7266]
+#> • 95% CI: [6.094, 7.7266]
 #> • Target period: 2024-01-01
 #> • R-squared: 0.9838 | Obs: 9
 # }
