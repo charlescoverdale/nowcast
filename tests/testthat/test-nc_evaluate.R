@@ -57,7 +57,7 @@ test_that("nc_dm_test returns correct structure", {
 test_that("nc_dm_test p-value near NA for identical errors", {
   set.seed(1)
   e <- rnorm(100)
-  result <- nc_dm_test(e, e)
+  expect_warning(result <- nc_dm_test(e, e), "non-positive")
   expect_true(is.na(result$p_value))
 })
 

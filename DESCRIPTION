@@ -1,6 +1,6 @@
 Package: nowcast
 Title: Economic Nowcasting with Bridge Equations and Real-Time Evaluation
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: person("Charles", "Coverdale", email = "charlesfcoverdale@gmail.com",
     role = c("aut", "cre", "cph"))
 Description: Provides bridge equations with optional autoregressive terms for

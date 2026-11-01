@@ -16,7 +16,7 @@ print.nowcast_result <- function(x, ...) {
   cli_bullets(c(
     "*" = "Nowcast: {.val {round(x$nowcast, 4)}}",
     "*" = "SE: {.val {round(x$se, 4)}}",
-    "*" = "{.val {(1 - x$alpha) * 100}%} CI: [{.val {round(x$ci_lower, 4)}}, {.val {round(x$ci_upper, 4)}}]",
+    "*" = "{(1 - x$alpha) * 100}% CI: [{.val {round(x$ci_lower, 4)}}, {.val {round(x$ci_upper, 4)}}]",
     "*" = "Target period: {.val {x$target_period}}"
   ))
 
